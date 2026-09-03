@@ -149,9 +149,7 @@ a:focus-visible {
 }
 
 .fallback-globe,
-.globe-model,
-.snow-layer,
-.glass-light {
+.globe-model {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -186,23 +184,6 @@ a:focus-visible {
 .globe-model::part(default-progress-bar),
 .globe-model::part(default-ar-button) {
   display: none;
-}
-
-.snow-layer {
-  z-index: 4;
-  pointer-events: none;
-}
-
-.glass-light {
-  z-index: 5;
-  pointer-events: none;
-  border-radius: 50%;
-  background:
-    radial-gradient(ellipse 26% 13% at 38% 16%, rgba(255, 255, 255, .15), transparent 72%),
-    radial-gradient(ellipse 8% 34% at 83% 32%, rgba(198, 231, 255, .08), transparent 75%);
-  clip-path: circle(35.8% at 50% 37.8%);
-  opacity: .72;
-  mix-blend-mode: screen;
 }
 
 .load-state {
@@ -256,9 +237,8 @@ a:focus-visible {
 
 .action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  width: 100%;
+  grid-template-columns: 1fr;
+  width: min(100%, 260px);
 }
 
 .action-button {
@@ -443,6 +423,12 @@ a:focus-visible {
 
   .masthead {
     margin-top: 4px;
+  }
+}
+
+@media (min-height: 750px) and (orientation: portrait) {
+  .object-stage {
+    transform: translateY(18px);
   }
 }
 

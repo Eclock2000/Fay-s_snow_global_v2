@@ -7,11 +7,14 @@ The original repository is intentionally left untouched.
 ## What changed
 
 - responsive layout sized for iPhone safe areas and short screens;
-- a physically scaled, optimized GLB/USDZ snow globe;
+- a physically scaled, optimized GLB/USDZ snow globe with a true tilted
+  spherical-cap snow volume;
+- curved-on-wood engraving, recessed ski tracks, and default wind-driven 3D
+  snow that keeps its depth while the globe rotates;
 - native iPhone AR through Apple Quick Look;
 - local, pinned runtime assets (no Google Fonts or third-party CDN dependency);
-- adaptive animation quality, reduced-motion support, visibility pausing, and
-  mobile-friendly pointer handling;
+- reduced-motion support, visibility pausing, and mobile-friendly pointer
+  handling;
 - explicit loading, AR readiness, and in-app-browser-to-Safari guidance.
 
 ## Local preview
