@@ -15,7 +15,6 @@ import sharp from 'sharp';
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { USDZExporter } from 'three/addons/exporters/USDZExporter.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDir, '..');
@@ -211,22 +210,22 @@ async function createWoodTexture() {
 }
 
 function createSnowBankGeometry() {
-  // A closed, lathed snow bank keeps the landscape inside the glass silhouette.
-  // The older pair of squashed spheres read as a floating white platter in 3D.
+  // Every point keeps a deliberate margin inside the crystal sphere. The bank
+  // narrows again near the neck so it never reads as a lid outside the glass.
   const profile = [
-    new THREE.Vector2(0, -0.88),
-    new THREE.Vector2(0.95, -0.88),
-    new THREE.Vector2(1.0, -0.83),
-    new THREE.Vector2(0.97, -0.75),
-    new THREE.Vector2(0.83, -0.61),
-    new THREE.Vector2(0.64, -0.49),
-    new THREE.Vector2(0.42, -0.4),
-    new THREE.Vector2(0.2, -0.35),
-    new THREE.Vector2(0, -0.34),
+    new THREE.Vector2(0, -0.89),
+    new THREE.Vector2(0.42, -0.89),
+    new THREE.Vector2(0.52, -0.84),
+    new THREE.Vector2(0.6, -0.78),
+    new THREE.Vector2(0.68, -0.69),
+    new THREE.Vector2(0.74, -0.58),
+    new THREE.Vector2(0.68, -0.48),
+    new THREE.Vector2(0.52, -0.38),
+    new THREE.Vector2(0.28, -0.31),
+    new THREE.Vector2(0, -0.29),
   ];
   const geometry = new THREE.LatheGeometry(profile, 72);
-  geometry.scale(1, 1, 0.88);
-  geometry.rotateZ(0.065);
+  geometry.scale(1, 1, 0.92);
   geometry.computeVertexNormals();
   geometry.name = 'SnowBankGeometry';
   return geometry;
@@ -238,41 +237,6 @@ function seededRandom(seed = 0x5f3759df) {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     return state / 0x100000000;
   };
-}
-
-function createStaticSnowGeometry() {
-  const random = seededRandom();
-  const sourceFlake = new THREE.IcosahedronGeometry(0.018, 0);
-  const flakes = [];
-
-  for (let index = 0; index < 112; index += 1) {
-    let x;
-    let y;
-    let z;
-    do {
-      x = (random() * 2 - 1) * 0.98;
-      y = -0.52 + random() * 1.58;
-      z = (random() * 2 - 1) * 0.92;
-    } while (x * x + (y - 0.18) ** 2 + z * z > 0.98 ** 2);
-
-    const scale = 0.55 + random() * 1.15;
-    const matrix = new THREE.Matrix4().compose(
-      new THREE.Vector3(x, y, z),
-      new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(random() * Math.PI, random() * Math.PI, random() * Math.PI),
-      ),
-      new THREE.Vector3(scale, scale, scale),
-    );
-    const flake = sourceFlake.clone();
-    flake.applyMatrix4(matrix);
-    flakes.push(flake);
-  }
-
-  const geometry = mergeGeometries(flakes, false);
-  geometry.name = 'SuspendedSnowGeometry';
-  sourceFlake.dispose();
-  flakes.forEach((flake) => flake.dispose());
-  return geometry;
 }
 
 function namedMesh(name, geometry, material) {
@@ -306,14 +270,6 @@ const snowMaterial = new THREE.MeshStandardMaterial({
   color: 0xf2f7ff,
   roughness: 0.86,
   metalness: 0,
-});
-const flakeMaterial = new THREE.MeshStandardMaterial({
-  name: 'Snowflakes',
-  color: 0xf8fcff,
-  roughness: 0.48,
-  metalness: 0.02,
-  emissive: 0x182b42,
-  emissiveIntensity: 0.28,
 });
 const [woodTexture, engravingTexture] = await Promise.all([
   createWoodTexture(),
@@ -379,13 +335,12 @@ penguinMesh.position.y = -penguinBounds.min.y * penguinScale;
 const penguinPivot = new THREE.Group();
 penguinPivot.name = 'PenguinPlacement';
 penguinPivot.rotation.order = 'YXZ';
-penguinPivot.rotation.y = -Math.PI / 2;
+// Align the penguin's face/chest with the engraved front of the base (+Z).
+penguinPivot.rotation.y = 0;
 penguinPivot.rotation.x = 0.08;
-penguinPivot.position.set(0.01, -0.335, 0.015);
+penguinPivot.position.set(0.01, -0.295, 0.015);
 penguinPivot.add(penguinMesh);
 gift.add(penguinPivot);
-
-gift.add(namedMesh('SuspendedSnow', createStaticSnowGeometry(), flakeMaterial));
 
 const globe = namedMesh(
   'CrystalGlobe',
@@ -406,12 +361,14 @@ neck.position.y = -0.94;
 gift.add(neck);
 
 const profile = [
-  new THREE.Vector2(0.58, -1.0),
-  new THREE.Vector2(0.7, -1.04),
-  new THREE.Vector2(0.82, -1.11),
-  new THREE.Vector2(0.86, -1.2),
-  new THREE.Vector2(0.83, -1.29),
+  new THREE.Vector2(0, -1.34),
   new THREE.Vector2(0.75, -1.34),
+  new THREE.Vector2(0.83, -1.29),
+  new THREE.Vector2(0.86, -1.2),
+  new THREE.Vector2(0.82, -1.11),
+  new THREE.Vector2(0.7, -1.04),
+  new THREE.Vector2(0.58, -1.0),
+  new THREE.Vector2(0, -1.0),
 ];
 gift.add(namedMesh('SculptedBase', new THREE.LatheGeometry(profile, 72), woodMaterial));
 

@@ -40,7 +40,8 @@ class Snowfall {
     this.particles = [];
     this.frame = 0;
     this.lastTime = 0;
-    this.activeUntil = 0;
+    this.startTime = 0;
+    this.endTime = 0;
     this.pausedAt = 0;
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
@@ -61,33 +62,47 @@ class Snowfall {
     this.height = bounds.height;
   }
 
-  createParticle(gentle = false) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = Math.sqrt(Math.random()) * 0.91;
+  createParticle(index, count, gentle = false) {
     const cx = this.width * 0.5;
     const cy = this.height * 0.375;
     const globeRadius = this.width * 0.35;
+    const y = cy - globeRadius * (0.86 + Math.random() * 0.16);
+    const vy = (gentle ? 34 : 43) + Math.random() * (gentle ? 18 : 33);
+    const floorY = cy + globeRadius * (0.54 + Math.random() * 0.17);
+    const lifeMs = Math.max(2100, ((floorY - y) / vy) * 1000);
     return {
-      x: cx + Math.cos(angle) * radius * globeRadius,
-      y: cy - globeRadius * (0.45 + Math.random() * 0.55),
-      vx: (Math.random() - 0.5) * (gentle ? 5 : 22),
-      vy: (gentle ? 10 : 20) + Math.random() * (gentle ? 12 : 36),
+      x: cx + (Math.random() * 2 - 1) * globeRadius * 0.77,
+      y,
+      vx: (Math.random() - 0.5) * (gentle ? 8 : 18),
+      vy,
       drift: Math.random() * Math.PI * 2,
-      driftSpeed: 1.2 + Math.random() * 2,
-      size: (gentle ? 0.8 : 1) + Math.random() * (gentle ? 1.2 : 2.1),
-      alpha: 0.42 + Math.random() * 0.5,
+      driftSpeed: 0.9 + Math.random() * 1.8,
+      size: (gentle ? 0.75 : 0.9) + Math.random() * (gentle ? 1.15 : 1.8),
+      alpha: 0.48 + Math.random() * 0.42,
+      delayMs: (index / count) * (gentle ? 750 : 1250) + Math.random() * 180,
+      lifeMs,
+      fadeInMs: (gentle ? 420 : 320) + Math.random() * 260,
+      fadeOutMs: (gentle ? 650 : 520) + Math.random() * 360,
     };
   }
 
-  burst({ welcome = false } = {}) {
+  burst() {
+    if (this.particles.length || this.frame) return false;
     this.resize();
     const gentle = reducedMotion.matches;
-    const baseCount = gentle ? 28 : window.innerWidth < 390 ? 112 : 148;
-    this.particles = Array.from({ length: baseCount }, () => this.createParticle(welcome));
+    const baseCount = gentle ? 32 : window.innerWidth < 390 ? 72 : 88;
+    this.particles = Array.from(
+      { length: baseCount },
+      (_, index) => this.createParticle(index, baseCount, gentle),
+    );
     const now = performance.now();
-    this.activeUntil = now + (gentle ? 1200 : welcome ? 3600 : 4300);
+    this.startTime = now;
+    this.endTime = now + Math.max(
+      ...this.particles.map((particle) => particle.delayMs + particle.lifeMs),
+    );
     this.lastTime = now;
     if (!this.frame && !document.hidden) this.frame = requestAnimationFrame((time) => this.draw(time));
+    return true;
   }
 
   draw(time) {
@@ -109,19 +124,19 @@ class Snowfall {
     context.fillStyle = '#f7fcff';
 
     for (const particle of this.particles) {
+      const ageMs = time - this.startTime - particle.delayMs;
+      if (ageMs < 0 || ageMs >= particle.lifeMs) continue;
+
       particle.drift += particle.driftSpeed * delta;
       particle.x += (particle.vx + Math.sin(particle.drift) * 4) * delta;
       particle.y += particle.vy * delta;
       particle.vx *= 0.988;
 
-      const dx = particle.x - cx;
-      const dy = particle.y - cy;
-      if (dx * dx + dy * dy > globeRadius * globeRadius || particle.y > cy + globeRadius * 0.72) {
-        Object.assign(particle, this.createParticle(true));
-      }
-
-      const ending = Math.max(0, Math.min(1, (this.activeUntil - time) / 700));
-      context.globalAlpha = particle.alpha * (time > this.activeUntil - 700 ? ending : 1);
+      const fadeIn = Math.min(1, ageMs / particle.fadeInMs);
+      const fadeOut = Math.min(1, (particle.lifeMs - ageMs) / particle.fadeOutMs);
+      const easedIn = fadeIn * fadeIn * (3 - 2 * fadeIn);
+      const easedOut = fadeOut * fadeOut * (3 - 2 * fadeOut);
+      context.globalAlpha = particle.alpha * easedIn * easedOut;
       context.beginPath();
       context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       context.fill();
@@ -130,10 +145,12 @@ class Snowfall {
     context.restore();
     context.globalAlpha = 1;
 
-    if (time < this.activeUntil) {
+    if (time < this.endTime) {
       this.frame = requestAnimationFrame((nextTime) => this.draw(nextTime));
     } else {
       this.particles = [];
+      this.startTime = 0;
+      this.endTime = 0;
       context.clearRect(0, 0, this.width, this.height);
     }
   }
@@ -145,8 +162,13 @@ class Snowfall {
   }
 
   resume() {
-    if (!this.particles.length || this.frame || performance.now() >= this.activeUntil) return;
-    this.lastTime = performance.now();
+    if (!this.particles.length || this.frame) return;
+    const now = performance.now();
+    const pausedFor = this.pausedAt ? now - this.pausedAt : 0;
+    this.startTime += pausedFor;
+    this.endTime += pausedFor;
+    this.lastTime = now;
+    this.pausedAt = 0;
     this.frame = requestAnimationFrame((time) => this.draw(time));
   }
 }
@@ -162,7 +184,6 @@ function stopAutomaticRotation() {
 function startWelcomeMoment() {
   if (welcomeFinished || reducedMotion.matches || document.hidden) return;
   welcomeFinished = true;
-  snowfall.burst({ welcome: true });
   viewer.setAttribute('rotation-per-second', '5deg');
   viewer.setAttribute('auto-rotate-delay', '0');
   viewer.setAttribute('auto-rotate', '');
@@ -199,8 +220,8 @@ window.setTimeout(() => {
 
 snowButton.addEventListener('click', () => {
   stopAutomaticRotation();
-  snowfall.burst();
-  snowAnnouncement.textContent = '雪落下来了。';
+  const started = snowfall.burst();
+  snowAnnouncement.textContent = started ? '雪落下来了。' : '雪还在轻轻落。';
 });
 
 function setArIntent() {

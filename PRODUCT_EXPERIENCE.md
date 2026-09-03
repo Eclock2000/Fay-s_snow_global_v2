@@ -32,6 +32,10 @@ Evidence comes from the deployed original page, its source at commit
 | Add AR and learn from the working cat project | User | stated | Preserve the proven user-gesture AR launch pattern and explicit USDZ asset |
 | The recipient is Fay and likes skiing | Original page | requirement-stated | Keep only this existing personalization; do not invent more private details |
 | Personalization must be quiet, discoverable detail rather than prominent copy | User | stated correction | The globe stays visually dominant; the existing phrase is a restrained base engraving that rewards attention |
+| The base must read as solid, not transparent or hollow | User screenshots | stated correction | Close the base geometry and keep one continuous walnut body between the brass bands |
+| The engraving must share the penguin's front direction | User screenshots | stated correction | When the penguin's face and chest are front-facing, the complete engraving is centered on the base front |
+| The snow bank must remain visibly inside the glass from every draggable view | User screenshots | stated correction | Narrow and raise the bank with a clear glass margin, including high and low camera angles |
+| Snow exists only as a deliberate button-triggered event | User screenshots | stated correction | No permanent or welcome snow; particles fade in from zero, fall once, fade independently, and return to zero without respawning |
 | The link may be opened inside WeChat/QQ/Weibo | Reference project | inferred | Do not block the gift; explain “open in Safari” only when AR is requested |
 | Add audio, analytics, accounts, location upload, or a backend | None | invented | Forbidden unless separately requested |
 
@@ -43,8 +47,8 @@ Evidence comes from the deployed original page, its source at commit
 |---|---|---|---|---|---:|---|---|---|
 | Open shared URL | Understand what was sent | Midnight sky and a recognizable, composed globe silhouette | None | HTML/CSS ready | < 1 s target | Take in the object | Network delivery is outside the product promise | Normal HTTP cache |
 | Model loading | See the actual gift | A soft nontechnical progress state and a calm nonblank stage | None | Local runtime and GLB streaming | < 5 s normal target | See the first-frame poster | If the model cannot be delivered, 3D simply does not load | Browser cache |
-| First useful content | Enjoy and inspect it | Detailed globe, penguin, snow, and a refined base whose low-contrast engraving reads “喜欢滑雪的 Fay” only on closer attention | Drag the globe | 3D interactive | Immediate | Discover the engraving; tap “让雪落下来” | Reduced-motion mode stays calm | Preference only; no personal data |
-| Playful action | Make it feel alive | A short, contained snowfall burst | Tap the dedicated snow button | Particle impulse, then settles | < 1 s | Rotate model | Globe taps never compete with drag; button remains usable | Nothing |
+| First useful content | Enjoy and inspect it | A quiet globe with no suspended snow, a contained snow bank, a front-facing penguin, and a solid base whose centered low-contrast engraving reads “喜欢滑雪的 Fay” only on closer attention | Drag the globe | 3D interactive | Immediate | Discover the engraving; tap “让雪落下来” | Reduced-motion mode stays calm | Preference only; no personal data |
+| Playful action | Make it feel alive | Snow emerges gradually from zero, falls once, thins out, and returns to a clear globe | Tap the dedicated snow button | One finite particle lifecycle | Immediate | Rotate model | No particle respawns at the bottom and repeat taps do not stack storms | Nothing |
 | Enter AR | Put the gift in the room | One clear AR call to action | Tap once | Native AR launch from same user gesture | Native handoff | Continue enjoying page if cancelled | Direct Quick Look link and browser guidance | Nothing |
 | Close | Leave without cleanup | No warning or forced share | Close tab | Animation stops | None | — | — | Cached assets only |
 
@@ -92,9 +96,11 @@ knowledge expected.
 card or a loader. The globe is the visual center; there is no prominent `FAY`
 headline, dedication block, date, or sentimental slogan. The existing phrase
 “喜欢滑雪的 Fay” is engraved quietly into the base with low contrast: readable
-when noticed, never animated or called out. The 3D detail resolves behind a
+when noticed, centered only when the penguin's face and chest are front-facing,
+and never animated or called out. The 3D detail resolves behind a
 complete static globe with a soft, nontechnical progress state. Dragging rotates
-it; the dedicated “让雪落下来” control creates a brief snow burst. Globe taps
+it; the settled globe contains no suspended flakes. The dedicated “让雪落下来”
+control creates one gradual, finite snow fall. Globe taps
 never compete with drag. A single “放到房间里” button, paired with “将进入
 iPhone 的 AR 相机视图；本网页不收集画面”, opens native AR. If the link is
 inside an unsupported in-app browser, the gift remains usable and only the AR
@@ -148,11 +154,13 @@ inside the web page, editable messages, and persistent personalization.
     engraving integrated into the base—present and readable, but neither
     spotlighted nor announced. There is no large `FAY`, prominent dedication,
     date, sender name, sentimental slogan, pulsing highlight, or reveal animation.
+    The engraving exists at one physical azimuth only: it is centered on the
+    base precisely when the penguin's face and chest are front-facing.
 13. The inline vector exists only to avoid a blank flash during ordinary model
     startup. It is not an offline or network-failure feature.
-14. Automatic motion is a short welcome moment, not an endless battery cost:
-    one initial snow fall and a brief auto-rotation settle, followed by a calm
-    scene. Reduced-motion mode starts calm and keeps manual controls available.
+14. Automatic motion is limited to a brief auto-rotation settle. There is no
+    automatic, static, or permanently suspended snow. Reduced-motion mode starts
+    calm and keeps manual controls available.
 15. The engraving crosses the line from hidden to discoverable without becoming
     a headline: at 375 px portrait it is readable without zoom when someone
     deliberately looks at the base, but it is not among the first three visual
@@ -177,12 +185,18 @@ inside the web page, editable messages, and persistent personalization.
 21. Link-preview metadata and artwork are intentional, identify a refined snow
     globe rather than a repository or technical demo, and do not reveal the
     quiet engraving surprise before the page opens.
+22. The snow bank remains fully within the glass sphere with a visible glass
+    margin from front, back, both sides, both three-quarter views, high view, and
+    low view. It cannot form a lid, platter, or silhouette outside the globe.
+23. A snow-button run starts from zero flakes. Individual flakes stagger their
+    fade-in, fall downward without teleporting or respawning, fade out at
+    different times, and leave the settled canvas empty again.
 
 ## 7. Implementation disposition
 
 | Keep | Change | Delete | Defer |
 |---|---|---|---|
-| Penguin, skiing theme, snow-globe metaphor, rotate/snow delight, quiet “喜欢滑雪的 Fay” engraving | Responsive composition, refined base treatment, PBR materials, first-frame poster, asset packaging, loading, AR handoff, touch/accessibility, motion lifecycle | Fixed 380 px geometry, 4.7 MB inline payload, remote CDN/font dependencies, prominent dedication concepts, automatic shake timer, globe-tap snow gesture, permanent spinner, model-recovery UI | Audio and richer native AR animation until requested and tested on a real iPhone |
+| Penguin, skiing theme, snow-globe metaphor, rotate/snow delight, quiet “喜欢滑雪的 Fay” engraving | Solid closed base, front-aligned penguin and engraving, contained snow bank, finite fade-in/fall/fade-out snow, responsive composition, PBR materials, AR handoff | Static suspended snow, bottom respawn, snow outside glass, hollow-looking base, misaligned engraving, fixed 380 px geometry, remote CDN/font dependencies, prominent dedication concepts, globe-tap snow gesture | Audio and richer native AR animation until requested and tested on a real iPhone |
 
 ## 8. Acceptance evidence plan
 
@@ -217,14 +231,21 @@ The release must label those items pending until that test is completed.
 | 2 | AR conveys a tabletop gift | Scale and upright placement were undefined | Blocking for release | Export target fixed near 24 cm and upright; giant/tiny/tilted/floating placement is a release failure | Must be tested on real iPhones |
 | 2 | Supported portrait sizes are enough | Dynamic Safari bars can still cover controls | Probable blocker | Safe-area and dynamic-height checks retained only for the specified portrait iPhones | True Safari behavior |
 | 2 | Page contents establish trust | Chat previews may expose a repo-like/technical presentation | Missing need / trust | Add intentional title, icon, and generic preview art without revealing the engraving | Platform preview caching |
+| 3 | The first refined model is ready | User screenshots show a hollow-looking center, misaligned engraving, snow outside the globe, and permanent flakes | Blocking | Treat the screenshots as the visual contract; close the base, align fronts, shrink the bank, and remove all static flakes | Recheck every draggable view |
+| 3 | A snow button proves dynamic snow exists | The button merely overlays a second layer on frozen flakes and particles appear abruptly | Blocking | Idle and settled states contain zero flakes; one click staggers fade-in, downward fall, and independent fade-out with no respawn | Verify a timed visual sequence |
+| 4 | A front screenshot is enough | Snow/glass intersection and engraving azimuth can fail from side, high, or low views | Blocking | Final acceptance requires real UI dragging through front, back, both sides, both three-quarter views, high, and low views | Xhigh visual reviewer must repeat after every structural change |
 
-**User-representative verdict:** Revise the contract first, then proceed. The
-revisions above resolve the product-direction objections. Native AR placement,
-in-app-to-Safari escape, engraving legibility, and dynamic Safari chrome remain
-release evidence gaps—not permission to make the design louder.
+**Post-fix visual verdict:** PASS for all four screenshot-derived corrections.
+At 390 × 844, a GPT-5.6-Sol xhigh visual reviewer used real drag gestures to
+inspect the front, back, both sides, both three-quarter views, high view, and
+low view. It found a solid base, one correctly aligned and restrained front
+engraving, a contained snow bank, and a zero-to-fall-to-zero snow lifecycle
+with no bottom respawn. Native AR placement and true Safari chrome remain
+separate real-iPhone release evidence gaps—not permission to make the design
+louder.
 
-**Shortest satisfying flow:** Open → see a complete, quiet globe → a brief snow
-moment settles → drag to inspect and happen upon the engraving → use the explicit
+**Shortest satisfying flow:** Open → see a complete, quiet, flake-free globe →
+drag to inspect and happen upon the engraving → use the explicit
 snow control if desired → tap “放到房间里” → tap once in Safari if the original
 browser cannot launch Quick Look → place an upright, believable tabletop globe →
 return to the same calm page.
