@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="72%">
+      <stop offset="0" stop-color="#142b4a"/>
+      <stop offset=".55" stop-color="#081226"/>
+      <stop offset="1" stop-color="#03050d"/>
+    </radialGradient>
+    <radialGradient id="glass" cx="34%" cy="20%" r="80%">
+      <stop stop-color="#e3f5ff" stop-opacity=".32"/>
+      <stop offset=".46" stop-color="#4a79a9" stop-opacity=".1"/>
+      <stop offset="1" stop-color="#071227" stop-opacity=".38"/>
+    </radialGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#b9ccdf"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#78503b"/>
+      <stop offset=".48" stop-color="#4a281e"/>
+      <stop offset="1" stop-color="#24120e"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="220%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <clipPath id="clip"><circle cx="600" cy="282" r="205"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g fill="#dfefff">
+    <circle cx="103" cy="92" r="2" opacity=".55"/><circle cx="191" cy="188" r="1.5" opacity=".42"/>
+    <circle cx="324" cy="71" r="1.3" opacity=".66"/><circle cx="934" cy="105" r="1.8" opacity=".48"/>
+    <circle cx="1056" cy="196" r="1.2" opacity=".7"/><circle cx="1110" cy="88" r="2" opacity=".34"/>
+    <circle cx="89" cy="438" r="1.4" opacity=".52"/><circle cx="1030" cy="453" r="1.5" opacity=".44"/>
+    <circle cx="220" cy="526" r="1.7" opacity=".3"/><circle cx="968" cy="548" r="1.4" opacity=".48"/>
+  </g>
+  <ellipse cx="600" cy="541" rx="250" ry="34" fill="#000" opacity=".44" filter="url(#shadow)"/>
+
+  <g clip-path="url(#clip)">
+    <circle cx="600" cy="282" r="205" fill="url(#glass)"/>
+    <path d="M390 386c79-75 145-22 223-47 89-29 149-11 207 56v105H390Z" fill="url(#snow)"/>
+    <g transform="translate(602 298) scale(1.18)">
+      <ellipse cx="0" cy="11" rx="30" ry="45" fill="#26313f"/>
+      <ellipse cx="0" cy="18" rx="18" ry="29" fill="#e5eaf0"/>
+      <circle cx="0" cy="-32" r="26" fill="#303b49"/>
+      <path d="M-16-40c8-13 27-14 35 1-12-4-23-4-35-1" fill="#f4f5f6"/>
+      <circle cx="-7" cy="-32" r="3" fill="#0d1520"/><circle cx="8" cy="-32" r="3" fill="#0d1520"/>
+      <path d="m-2-25 15 5-15 5Z" fill="#c87b43"/>
+      <path d="M-30 2q-18 15-13 39M29 2q18 17 13 39" fill="none" stroke="#9fb9d3" stroke-width="8" stroke-linecap="round"/>
+      <path d="m-33 65 68-10" stroke="#86aeca" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g fill="#fff">
+      <circle cx="455" cy="193" r="3" opacity=".82"/><circle cx="505" cy="126" r="2.2" opacity=".63"/>
+      <circle cx="563" cy="190" r="2.7" opacity=".76"/><circle cx="635" cy="125" r="2.1" opacity=".68"/>
+      <circle cx="709" cy="172" r="3.2" opacity=".8"/><circle cx="760" cy="230" r="2.3" opacity=".62"/>
+      <circle cx="480" cy="281" r="2" opacity=".74"/><circle cx="728" cy="286" r="2.6" opacity=".78"/>
+    </g>
+  </g>
+  <circle cx="600" cy="282" r="205" fill="none" stroke="#c7e2f5" stroke-opacity=".38" stroke-width="5"/>
+  <ellipse cx="535" cy="150" rx="75" ry="29" transform="rotate(-18 535 150)" fill="#fff" opacity=".12"/>
+  <path d="M437 270c8-98 69-168 153-188" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".14"/>
+
+  <path d="M529 479h142l14 31H515Z" fill="url(#wood)"/>
+  <path d="M466 514q10-27 40-28h188q30 1 40 28l13 72H453Z" fill="url(#wood)"/>
+  <path d="M448 582h304v25H448Z" rx="12" fill="#21110d"/>
+  <path d="M466 529h268" stroke="#b87b3e" stroke-width="5" opacity=".66"/>
+
+  <text x="600" y="43" fill="#dcefff" fill-opacity=".64" text-anchor="middle" font-family="Georgia, serif" font-size="17" letter-spacing="10">SNOW GLOBE</text>
+</svg>
