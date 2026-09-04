@@ -549,9 +549,12 @@ function baseRadiusAtY(profile, y) {
 function createCurvedEngravingGeometry(profile) {
   const horizontalSegments = 64;
   const verticalSegments = 8;
-  const halfArc = 0.72;
-  const yBottom = -1.285;
-  const yTop = -1.105;
+  const halfArc = 0.66;
+  // Keep the glyphs on the continuous upper walnut shoulder, above the
+  // profile's maximum outward bulge at y = -1.20. This preserves true curved
+  // attachment without forcing the type across the bright protruding rim.
+  const yBottom = -1.155;
+  const yTop = -0.975;
   const positions = [];
   const uvs = [];
   const indices = [];

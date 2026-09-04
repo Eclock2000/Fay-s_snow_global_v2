@@ -1,10 +1,10 @@
 # Product experience contract
 
-Status: the centered-front and gentler-slope correction has passed the user's
-direct slope read, a fresh adversarial blind read, and GPT-5.6-Sol xhigh visual
-review with real multi-angle dragging. Real-iPhone Safari/Quick Look and thermal
-acceptance remain pending. This document governs the v2 implementation; the
-original repository remains read-only.
+Status: the locked-page gesture and upper-band engraving correction has passed
+touch-emulated interaction checks, a fresh adversarial blind read, and
+GPT-5.6-Sol xhigh visual review with real multi-angle dragging. Real-iPhone
+Safari/Quick Look and thermal acceptance remain pending. This document governs
+the v2 implementation; the original repository remains read-only.
 
 ## 1. Current-state audit
 
@@ -748,3 +748,142 @@ Real-iPhone Safari touch feel, ten-minute frame pacing and temperature, native
 Quick Look handoff/upright tabletop placement, physical-size engraving
 legibility, and the recipient's unprompted reaction remain outside browser
 proof.
+
+## 16. Locked-page gesture and engraving-band correction
+
+### Current-state audit
+
+| Artifact evidence | Actual user experience | Disposition |
+|---|---|---|
+| The model declares `touch-action="pan-y"` | A vertical attempt to orbit can be interpreted as permission to move the page, so the globe and page compete for one finger | Reject; the stage must own a gesture that begins on the globe |
+| The document hides only horizontal overflow and the root remains scrollable | Safari can rubber-band or shift the layout even though there is no useful content below it | Lock the document to the dynamic viewport without adding a gesture-cancelling script |
+| The engraving texture is centered on the base profile's maximum outward bulge | The phrase rides the brightest protruding shoulder; glyphs appear compressed by the edge and highlight | Move the curved carrier modestly upward into one continuous walnut band and judge optical clearance |
+| The AR control is a separate button below the stage | A page-wide touch interceptor could accidentally break the one useful non-drag action | Keep the button's native tap behavior and do not attach blanket touch handlers |
+
+### Requirement and source audit
+
+| Requirement or assumption | Source | Status | Consequence |
+|---|---|---|---|
+| Page scrolling has no purpose and must be disabled | User | Stated and blocking | Root and body remain fixed at scroll position zero in every supported portrait size |
+| Drag-to-orbit currently conflicts with page movement | User | Stated and blocking | The model stage uses an exclusive touch gesture rather than vertical browser panning |
+| The engraving sits awkwardly on the protruding outer edge and should move upward | User | Stated and blocking | Reposition the real curved carrier; do not fake the correction with screen-space text |
+| Disabling scrolling should also disable Safari's system back gesture | None | Invented and harmful | Do not install a document-wide `touchmove` cancellation or intercept edge navigation |
+| The engraving should become larger or brighter | None; contradicted by prior preference | Forbidden | Preserve quiet contrast and scale while improving placement and glyph shape |
+| Penguin, slope, wind, camera, and AR model need redesign | None | Invented | Freeze them unless the correction creates a demonstrated regression |
+
+### Journey audit
+
+| Contact | User wants and sees | User action and wait | Persistence and failure |
+|---|---|---|---|
+| First | One complete, motionless page frame; globe, inscription, hint, and AR control all fit with Safari chrome visible | Drag immediately in any direction; no wait beyond the existing model load | Any page shift, white rubber-band edge, clipped AR control, or stage/button collision fails |
+| Second | The same stable default composition with the engraving in the upper walnut band | Drag repeatedly, inspect the base, optionally enter and return from Quick Look | No scroll or view state is stored; Quick Look return keeps the current page session |
+| Nth | A keepsake that still behaves like a single object rather than a document | Orbit or tap AR; no maintenance | Refresh/new visit restores the default camera and scroll position zero |
+
+### Two-round user-representative defense
+
+| Round | User objection | Severity | Contract response |
+|---:|---|---|---|
+| 1 | A zero `scrollTop` can hide rubber-band, toolbar motion, or loss of the drag after the finger exits the globe | Blocking | Verify the full press-move-exit-release lifecycle and fixed surrounding layout, not only a final metric |
+| 1 | Locking every touch could trap the user by swallowing Safari edge-back navigation | Probable blocker | Lock document layout and the model gesture with CSS; do not cancel all document touch events |
+| 1 | A fixed page can put the AR control under Safari's visible bottom toolbar on the shortest phone | Blocking | Re-run 390 × 844, 375 × 812, and 375 × 667 with every primary element inside the dynamic viewport |
+| 1 | Moving text can merely place it between two ridges while a highlight still erases half the phrase | Blocking | Require visible breathing room above and below the whole phrase and judge the material highlight in rendered views |
+| 2 | Vertical orbit limits could hand control back to the page or create a dead zone | Probable blocker | At high/low limits the object stops smoothly; reverse drag resumes while the page stays fixed |
+| 2 | Long repeated use can accumulate stage drift | Blocking | Run at least twenty horizontal, vertical, and diagonal drags and compare fixed UI bounds before/after |
+| 2 | A drag ending over the AR control could launch it | Blocking | Preserve separate native hit targets: only a gesture beginning as a button tap launches AR |
+| 2 | Curved text can become a billboard or be abruptly clipped in three-quarter views | Probable blocker | Default is complete; three-quarter views foreshorten continuously; side/back views naturally hide it with the base |
+
+The representative returned `PROCEED` to implementation after both rounds. It
+also made Safari edge navigation, full pointer capture, dynamic-toolbar fit,
+drag-versus-AR separation, and same-session Quick Look return explicit rather
+than allowing “overflow hidden” to stand in for experience proof.
+
+### Replacement experience contract
+
+59. The document is a single dynamic-viewport scene. It has no useful scroll
+    range, no visible scrollbar, and no content or rubber-band displacement
+    during ordinary non-edge swipes.
+60. A touch beginning on the model is exclusively an orbit gesture in the
+    horizontal, vertical, or diagonal direction. It remains continuous when
+    the finger leaves the stage and ends without moving the surrounding page.
+61. Reaching the allowed high or low camera limit never hands the gesture to the
+    page. Reversing direction immediately resumes orbiting without a dead zone.
+62. Page locking uses layout and component gesture semantics, not a blanket
+    document event cancellation. Browser-level Safari edge navigation remains
+    outside the page's gesture ownership.
+63. The AR action remains a native, isolated tap target. A globe drag cannot
+    launch AR merely because its path or release point crosses the button.
+64. The complete phrase sits above the base's maximum protruding rim on one
+    continuous walnut shoulder. Glyph tops and bottoms retain visible clearance
+    from both brass and highlight edges; no letter is stretched across a ridge.
+65. Engraving scale, color, depth cue, and hierarchy stay restrained. It is
+    readable on deliberate inspection, foreshortens with the curved base, and
+    disappears naturally toward the side/back without billboarding.
+66. At 390 × 844, 375 × 812, and 375 × 667, the fixed scene retains the globe,
+    engraving, drag hint, AR control, and bottom safe-area note without overlap
+    or requiring the browser toolbar to be collapsed.
+
+### Implementation disposition
+
+| Keep | Change | Delete | Defer |
+|---|---|---|---|
+| Accepted skier/slope/wind/camera, quiet engraving material, one AR action, responsive grid | Root/body viewport lock, model gesture ownership, engraving carrier height and only the minimum curvature needed for undistorted type | `pan-y` permission and the old carrier centered on the outer bulge | Real-iPhone Safari rubber-band/edge-back feel, dynamic-toolbar behavior, touch latency, and Quick Look return |
+
+### Acceptance evidence plan
+
+- Inspect computed root/body scroll dimensions and positions at all three target
+  viewports; attempt ordinary background swipes and model drags.
+- Begin drags inside the globe, cross its boundary, reach high/low orbit limits,
+  reverse, and release; compare stage, masthead, actions, and button rectangles
+  before and after at least twenty mixed drags.
+- Start on the globe and cross the AR button without activating it, then perform
+  one clean button click and confirm the expected AR/browser branch.
+- Rebuild GLB and USDZ, enlarge the base in default, three-quarter, side, and
+  low views, and reject any glyph touching a highlight/ridge, planar text,
+  abrupt clipping, or excessive prominence.
+- Re-run automated file/model/viewport checks, publish the new commit, and
+  byte-compare the deployed HTML, CSS, GLB, and USDZ.
+
+### Current correction acceptance
+
+The user representative reloaded and operated the implemented candidate, then
+returned `PROCEED`. Horizontal, vertical, diagonal, and stage-exit drags changed
+only the object; a drag crossing the AR control did not activate it; a deliberate
+button click still opened the expected `#ar` branch. It judged the complete
+phrase to have moved from the outer bright rim into a continuous upper walnut
+band, with natural three-quarter shortening and side/back disappearance while
+remaining subordinate to the skier.
+
+The GPT-5.6-Sol xhigh reviewer independently compared the still-published prior
+version with the candidate, enlarged the base, and dragged through default,
+both three-quarter views, sides, back, and high/low limits. It returned `PASS`:
+the new inscription has visible walnut clearance above and below, touches
+neither brass edge, is not split by the bulge highlight, has no planar patch or
+floating seam, and never billboards. The accepted 17-degree slope, skier contact,
+thick cap, and globe-space snow showed no visual regression.
+
+At 390 × 844, a synthetic touch began inside the model, left the stage, crossed
+the AR button, and ended below it. Scroll position and URL hash remained zero,
+the dialog stayed closed, and the orbit visibly changed. A separate set of 20
+horizontal, vertical, diagonal, boundary-crossing, and button-crossing touch
+drags left the stage, masthead, actions, and button rectangles byte-for-byte
+identical before and after. Three ordinary non-edge background swipes and an
+independent synthesized page-scroll gesture left `scrollX`, `scrollY`, visual
+viewport offset/page top, root dimensions, and body dimensions unchanged. A
+clean AR-button click remained functional.
+
+Exact responsive metrics passed at 390 × 844, 375 × 812, and 375 × 667. In each
+case root/body width and height exactly matched the requested viewport, scroll
+position was zero, and the stage, actions, AR button, and note remained within
+the page bounds. Computed styles confirmed hidden root/body overflow, a fixed
+dynamic-viewport body, vertical overscroll suppression, and `touch-action: none`
+on the model. Automated acceptance reports 67,560 triangles, a 3,255,792-byte
+GLB, a 7,956,773-byte USDZ, 25,821 first-party page bytes, and 0.2346 m AR height;
+`usdchecker` reports `Success!`. Browser logs contained no first-party warning or
+error.
+
+### Remaining gap from excellent
+
+Browser automation can prove fixed layout, component gesture ownership, visual
+placement, and deployed-byte identity. Only the user's real iPhone can finally
+judge Safari rubber-band suppression, system edge-back behavior, dynamic toolbar
+fit, touch latency, Quick Look return, and physical-size engraving legibility.

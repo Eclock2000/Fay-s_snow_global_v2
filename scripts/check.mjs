@@ -45,6 +45,7 @@ for (const token of [
   'ar-modes="quick-look"',
   'ar-scale="fixed"',
   'camera-orbit="0deg 87deg 104%"',
+  'touch-action="none"',
   'rel="ar"',
   '喜欢滑雪的 Fay',
   '画面不会上传到这个网页',
@@ -54,6 +55,8 @@ for (const token of [
 
 for (const token of [
   '100svh',
+  '100dvh',
+  'overscroll-behavior-y: none',
   'env(safe-area-inset-top)',
   'env(safe-area-inset-bottom)',
   'prefers-reduced-motion',
@@ -98,6 +101,14 @@ for (const token of [
 }
 
 requireCondition(!html.includes('fonts.googleapis.com'), 'External Google Fonts request found');
+requireCondition(!html.includes('touch-action="pan-y"'), 'Model still permits page panning');
+requireCondition(/html\s*\{[^}]*overflow:\s*hidden/.test(css), 'Root viewport is not scroll-locked');
+requireCondition(/body\s*\{[^}]*position:\s*fixed/.test(css), 'Body is not fixed to the viewport');
+requireCondition(/body\s*\{[^}]*overflow:\s*hidden/.test(css), 'Body overflow is not locked');
+requireCondition(
+  css.includes('.object-stage,\n.globe-model {\n  touch-action: none;'),
+  'Interactive stage does not exclusively own touch gestures',
+);
 requireCondition(!html.includes('cdnjs.cloudflare.com'), 'External CDN request found');
 requireCondition(!app.includes('localStorage'), 'Persistent localStorage is not allowed');
 requireCondition(!html.includes('id="snowLayer"'), 'Screen-space snow canvas found');
