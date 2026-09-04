@@ -877,9 +877,18 @@ position was zero, and the stage, actions, AR button, and note remained within
 the page bounds. Computed styles confirmed hidden root/body overflow, a fixed
 dynamic-viewport body, vertical overscroll suppression, and `touch-action: none`
 on the model. Automated acceptance reports 67,560 triangles, a 3,255,792-byte
-GLB, a 7,956,773-byte USDZ, 25,821 first-party page bytes, and 0.2346 m AR height;
+GLB, a 7,956,773-byte USDZ, 25,871 first-party page bytes, and 0.2346 m AR height;
 `usdchecker` reports `Success!`. Browser logs contained no first-party warning or
 error.
+
+The first post-deploy browser probe also caught a real release-path issue: the
+new HTML bytes were live, but an already-open browser reused the preceding
+unversioned stylesheet and model URLs, leaving `body` static and model touch
+action at `auto`. The release therefore fingerprints the changed stylesheet,
+GLB, and USDZ URLs with one shared version query. A fresh local navigation then
+loaded the versioned sheet and model together, reporting fixed body positioning,
+hidden overflow, `touch-action: none`, and a ready model. The same byte-identity
+and computed-style probe is required after the fingerprint commit reaches Pages.
 
 ### Remaining gap from excellent
 

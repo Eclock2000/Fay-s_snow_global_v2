@@ -41,7 +41,10 @@ const modelInfo = JSON.parse(readFileSync(file('assets/models/model-info.json'),
 
 for (const token of [
   'viewport-fit=cover',
-  'ios-src="./assets/models/fay-snow-globe.usdz"',
+  'href="./assets/models/fay-snow-globe.glb?v=df1a12c"',
+  'href="./styles.css?v=df1a12c"',
+  'src="./assets/models/fay-snow-globe.glb?v=df1a12c"',
+  'ios-src="./assets/models/fay-snow-globe.usdz?v=df1a12c"',
   'ar-modes="quick-look"',
   'ar-scale="fixed"',
   'camera-orbit="0deg 87deg 104%"',
