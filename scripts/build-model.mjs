@@ -237,10 +237,13 @@ async function createWoodTexture() {
 async function createSnowTexture() {
   const canvas = createCanvas(512, 512);
   const context = canvas.getContext('2d');
-  const gradient = context.createLinearGradient(54, 60, 468, 460);
-  gradient.addColorStop(0, '#fbfdff');
-  gradient.addColorStop(0.46, '#eaf3f9');
-  gradient.addColorStop(1, '#bed3e4');
+  // Local X is the physical fall line. A restrained rear-to-front value shift
+  // makes that depth legible from the centered hero view without painting a
+  // fake diagonal edge onto the otherwise planar snow surface.
+  const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+  gradient.addColorStop(0, '#fcfeff');
+  gradient.addColorStop(0.5, '#eaf3f9');
+  gradient.addColorStop(1, '#b5cada');
   context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -276,19 +279,18 @@ const GLOBE_RADIUS = 1.16;
 const SNOW_CAP_RADIUS = GLOBE_RADIUS - 0.055;
 const SNOW_SURFACE_Y = -0.31;
 const SNOW_DISC_RADIUS = Math.sqrt(SNOW_CAP_RADIUS ** 2 - SNOW_SURFACE_Y ** 2);
-const MINIATURE_AZIMUTH = THREE.MathUtils.degToRad(-110);
+const MINIATURE_AZIMUTH = THREE.MathUtils.degToRad(-90);
 const SLOPE_TILT = new THREE.Quaternion().setFromEuler(
-  new THREE.Euler(THREE.MathUtils.degToRad(2.5), 0, THREE.MathUtils.degToRad(-25), 'XYZ'),
+  new THREE.Euler(0, 0, THREE.MathUtils.degToRad(-17), 'XYZ'),
 );
-// Present the physical fall line toward the default camera and lower-left,
-// where the source mesh's visible board tips naturally lead. The outer globe
-// and base remain upright; only the filled miniature is turned inside the
-// rotationally symmetric sphere.
+// Present the physical fall line on the same front axis as the curved base
+// inscription. The outer globe and base remain upright; only the filled
+// miniature is turned inside the rotationally symmetric sphere.
 const SLOPE_ROTATION = new THREE.Quaternion()
   .setFromAxisAngle(new THREE.Vector3(0, 1, 0), MINIATURE_AZIMUTH)
   .multiply(SLOPE_TILT);
 const GLOBE_CENTER = new THREE.Vector3(0, GLOBE_CENTER_Y, 0);
-const TRACK_END = new THREE.Vector2(-0.22, 0.13);
+const TRACK_END = new THREE.Vector2(-0.22, 0);
 const DOWNHILL_DIRECTION = new THREE.Vector3(1, 0, 0)
   .applyQuaternion(SLOPE_ROTATION)
   .normalize();
@@ -306,10 +308,12 @@ function trackCenter(trackIndex, t) {
   // Keep the ski pair close enough to feel physically linked, but far enough
   // apart that the two recessed cuts survive the default low camera angle.
   const spacing = (trackIndex === 0 ? -1 : 1) * THREE.MathUtils.lerp(0.082, 0.06, t);
-  const carve = Math.sin(t * Math.PI) * 0.105 + Math.sin(t * Math.PI * 2) * 0.018;
+  const carve = Math.sin(t * Math.PI * 2) * 0.048
+    + Math.sin(t * Math.PI * 4) * 0.012;
+  const asymmetry = (trackIndex === 0 ? -1 : 1) * Math.sin(t * Math.PI) * 0.006;
   return {
-    x: THREE.MathUtils.lerp(-0.82, TRACK_END.x, t),
-    z: THREE.MathUtils.lerp(-0.08, TRACK_END.y, t) + carve + spacing,
+    x: THREE.MathUtils.lerp(-0.98, TRACK_END.x, t),
+    z: THREE.MathUtils.lerp(0, TRACK_END.y, t) + carve + spacing + asymmetry,
   };
 }
 
@@ -338,7 +342,7 @@ function sculptedTrackField(x, z) {
     const lipWeight = strength * Math.exp(
       -(lipDistance * lipDistance) / (2 * (width * 0.5) ** 2),
     );
-    heightOffset += -0.063 * grooveWeight + 0.017 * lipWeight;
+    heightOffset += -0.068 * grooveWeight + 0.019 * lipWeight;
     compression = Math.max(compression, grooveWeight);
   }
   return { heightOffset, compression };
@@ -503,7 +507,7 @@ function createTrackBedGeometry(trackIndex) {
     const tangentLength = Math.hypot(tangentX, tangentZ) || 1;
     const perpendicularX = -tangentZ / tangentLength;
     const perpendicularZ = tangentX / tangentLength;
-    const width = THREE.MathUtils.lerp(0.002, 0.023, smoothstep01(t / 0.22));
+    const width = THREE.MathUtils.lerp(0.002, 0.028, smoothstep01(t / 0.22));
 
     for (const side of [-1, 1]) {
       const x = center.x + perpendicularX * width * side;
@@ -612,8 +616,8 @@ function createSnowfallVolume(material) {
   const flakeCount = 72;
   const interiorRadius = GLOBE_RADIUS - 0.075;
   // This is a globe-space crosswind, not a vector derived from the tilted
-  // terrain. From the default camera it cuts upper-left to lower-right while
-  // Fay skis toward lower-left; orbiting the camera reveals the actual depth
+  // terrain. From the default camera it cuts across Fay's centered fall line;
+  // orbiting the camera reveals the actual depth
   // and reverses the projected sweep on the far side.
   const crosswind = new THREE.Vector3(0.88, -0.32, 0.35).normalize();
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
@@ -802,7 +806,7 @@ const snowMaterial = new THREE.MeshStandardMaterial({
 });
 const trackBedMaterial = new THREE.MeshStandardMaterial({
   name: 'CompressedSnowInGrooves',
-  color: 0x92aaba,
+  color: 0x718b9f,
   roughness: 1,
   metalness: 0,
   polygonOffset: true,

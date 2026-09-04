@@ -1,9 +1,10 @@
 # Product experience contract
 
-Status: the screenshot-triggered orientation and wind correction has passed a
-fresh GPT-5.6-Sol xhigh browser review using real drag gestures. Real-iPhone
-Safari/Quick Look and thermal acceptance remain pending. This document governs
-the v2 implementation; the original repository remains read-only.
+Status: the centered-front and gentler-slope correction has passed the user's
+direct slope read, a fresh adversarial blind read, and GPT-5.6-Sol xhigh visual
+review with real multi-angle dragging. Real-iPhone Safari/Quick Look and thermal
+acceptance remain pending. This document governs the v2 implementation; the
+original repository remains read-only.
 
 ## 1. Current-state audit
 
@@ -614,3 +615,136 @@ An informed model reviewer can reject geometric mistakes but cannot supply the
 recipient's own interpretation. The adversarial blind-read now passes, but Fay's
 unprompted first impression remains unknowable until she opens the gift. Real
 iPhone performance and Quick Look also remain pending exactly as before.
+
+## 15. Centered-front and gentler-slope correction
+
+### Current-state audit
+
+| Artifact evidence | Current first-glance effect | Disposition |
+|---|---|---|
+| The accepted candidate presents the miniature on a diagonal left-front azimuth | Penguin, board midpoint, tracks, and run-out sit visibly left of the centered base inscription | Reject for the new default composition |
+| The penguin placement also carries a lateral track-end offset | Even a corrected global azimuth would leave the motion axis displaced | Remove the lateral offset while retaining two distinct tracks |
+| The default camera starts slightly away from the base's engraved front | Geometric alignment alone can still look visually off-center | Make the stable default camera and physical front share one axis, then judge by eye |
+| The current filled cap has a strong high-to-low difference | It reads steeper than the user wants and makes the forward pose look defensive | Reduce the terrain tilt without changing the spherical-fill construction |
+
+### Requirement and source audit
+
+| Requirement or assumption | Source | Status | Consequence |
+|---|---|---|---|
+| The slope is currently too steep | User | Stated and blocking | Reduce its visible grade; do not defend the previous accepted angle |
+| Penguin and snow slope must face and center on the midpoint of “喜欢滑雪的 Fay” | User | Stated and blocking | Use one physical front axis for engraving midpoint, chest, board midpoint, track midline, and run-out low point |
+| Every visible detail must become mirror-symmetric | None | Invented | Forbidden; arms, poles, scarf, track detail, and crosswind retain restrained asymmetry |
+| The diagonal left-front hero angle is more dynamic | Previous design choice | Contradicted | Delete it from the default composition |
+| The snow remains a filled spherical cap, not a mound or thin disc | Earlier user correction | Stated | Change only grade and front axis; preserve thick contained volume |
+| The globe-space crosswind and quiet engraving hierarchy remain correct | Prior visual acceptance and user preference | Requirement-stated | Freeze their behavior and prominence unless alignment exposes a regression |
+
+### Journey audit
+
+| Contact | User wants and sees | What the user need not understand | Persistence and failure |
+|---|---|---|---|
+| First | Within one second, a centered front-facing skier descends a moderate full-width slope; engraving midpoint, chest, board midpoint, track midline, and run-out form one vertical stack | Model axes, camera angles, or transforms | No automatic camera drift; a left/right offset or cliff-like grade fails immediately |
+| Second | Dragging reveals one thick spherical cap and one rigid motion assembly; the centered front naturally turns away and returns | Why projection changes or how crosswind is animated | Nothing is stored; reload returns to the same centered front |
+| Nth | The same quiet gift opens without setup; asymmetric wind and pose keep the centered composition alive | Any calibration or alignment control | No accumulated state, analytics, or maintenance |
+
+### Two-round user-representative defense
+
+| Round | Objection | Contract correction | Verdict |
+|---:|---|---|---|
+| 1 | Centering everything could become a rigid product-photo symmetry | Center only the motion mainline; preserve asymmetric hands, poles, scarf, track nuance, and wind | Resolved |
+| 1 | Facing directly forward could collapse both boards and flatten the slope | Keep a centered but slightly elevated camera; both tips, high rear snow, contact, and at least one body-length of forward run-out must coexist | Resolved |
+| 1 | “Gentler” is too vague and can become either a cliff or a platter | Judge whether it looks stably skiable, retains side-view relief and thick snow, and leaves a substantial forward run-out | Resolved |
+| 1 | Crosswind could draw a competing X across the centered action | Wind may cross in depth but cannot persistently obscure face, chest, board midpoint, or the run-out | Resolved |
+| 2 | Numeric centering may still look off because of curved text and asymmetric visual weight | Accept the visible center of the full phrase and chest/board support, with only minimal physical compensation if needed | Resolved |
+| 2 | Perfect twin grooves would look like artificial rails | Preserve small depth/curve differences while their combined center returns to the rear high point | Resolved |
+| 2 | Extreme views can expose a thin disc, hidden feet, or uphill travel | Require low/high/sides/three-quarter/back drag checks with specific continuity and direction criteria | Resolved |
+| 2 | A part might secretly billboard toward the screen to maintain alignment | Centering belongs only to the default front; engraving and miniature must rotate away and return as physical geometry | Resolved; `PROCEED` to candidate only |
+
+### Replacement experience contract
+
+51. The default view has one visible vertical motion axis. The visual midpoint
+    of the complete inscription, penguin chest, midpoint between the two board
+    supports, combined track midline, and slope run-out low point align on it.
+52. Centering applies to the motion axis, not every silhouette. Arms, poles,
+    scarf, track depth/curvature, and globe-space crosswind remain naturally
+    asymmetric and cannot turn the result into a passport-style pose.
+53. The penguin faces down the centered fall line toward the viewer. Both board
+    tips remain separately readable, the face remains recognizable, and at
+    least about one penguin body length of intact run-out remains ahead.
+54. The slope reads as clearly downhill but stably skiable, not a cliff the
+    penguin is preventing itself from falling from. Side views retain visible
+    high/low relief; every view retains a continuous thick spherical cap rather
+    than a thin platter or isolated mound.
+55. The stable default camera shares the engraved physical front and never
+    drifts automatically. Dragging turns the engraving, penguin, tracks, and
+    run-out away together; returning to front restores the one visual axis.
+56. Twin grooves may differ subtly but their combined midline travels from the
+    boards to the centered rear high point. Neither groove may pull the motion
+    toward the old left-front destination.
+57. Crosswind still cuts obliquely through independent globe space, but it
+    cannot create a persistent competing line through the face, chest, board
+    midpoint, or run-out. The downhill direction must remain unambiguous.
+58. Low view keeps feet and board tips visible above a thick cap edge; high view
+    preserves the rear-tracks-to-boards-to-run-out route; sides show rear high
+    and front low; back view retains tracks extending uphill from the board
+    tails. No object billboards toward the camera.
+
+### Implementation disposition
+
+| Keep | Change | Delete | Defer |
+|---|---|---|---|
+| Filled spherical cap topology, accepted forward-pressure pose, two boards, twin recessed tracks, globe-space crosswind, curved quiet engraving, AR action | Terrain grade, miniature front azimuth, lateral placement/track center, stable default camera, matching loading/share artwork | Old left-front destination and excessive grade; any visual workaround that moves or brightens the engraving | Real-iPhone touch/thermal/Quick Look evidence and Fay's unprompted reaction |
+
+### Acceptance evidence plan
+
+- Blind-read the default frame before dragging; name the visible fall line and
+  compare the five visual centers, not hidden numeric origins.
+- Use real drag through front, back, both sides, both three-quarter views, and
+  high/low limits. Reject hidden feet, thin snow, uphill tracks, billboarding,
+  or a return-to-front misalignment.
+- Confirm both board tips and substantial forward run-out remain visible at the
+  gentler grade while the accepted forward-pressure silhouette survives.
+- Confirm the existing crosswind still foreshortens/reverses with orbit and does
+  not become the dominant alignment line.
+- Rebuild GLB/USDZ and repeat file, triangle, physical-height, syntax, exact
+  390 × 844, 375 × 812, and 375 × 667 viewport gates.
+
+### Current correction acceptance
+
+The preceding left-front composition and its PASS were invalidated when the
+user rejected the visible grade and alignment. The replacement keeps the true
+filled spherical cap, reduces its physical tilt to 17 degrees, turns its fall
+line squarely toward the engraved front, removes the lateral track-end offset,
+and uses a stable centered hero camera. The user then inspected the running
+candidate and explicitly confirmed that the current slope looks right; that
+grade is now locked rather than treated as an invitation for further tuning.
+
+The user representative reloaded the final candidate and blind-read it before
+dragging. It returned `PROCEED`: the full phrase midpoint, chest, board midpoint,
+and centered run-out stack vertically; penguin, snow, grooves, engraving, and
+wind change perspective together; and the engraving remains quiet enough to be
+discovered rather than announced.
+
+The GPT-5.6-Sol xhigh visual reviewer independently reloaded the same candidate
+and used real drag gestures through default, both three-quarter views, both
+sides, back, and the high/low limits. It returned `PASS`: all five visual centers
+remain on the default axis; two lengthened shallow grooves read as recessed snow
+rather than decals or rails; their value shift and the terrain shading turn away
+with the object; board contact survives low and side views; and the cap stays
+thick and contained. The independent globe-space gust continued to change
+projected length and direction without a reset or screen lock.
+
+Exact browser captures passed at 390 × 844, 375 × 812, and 375 × 667. For every
+capture, `innerWidth`, root `clientWidth`, root and body `scrollWidth` equaled the
+requested width, root `scrollHeight` equaled the viewport height, the model was
+ready, and the stage, 260-pixel AR control, hint, and camera note stayed within
+the page bounds. Automated acceptance reports 67,560 triangles, a
+3,255,808-byte GLB, a 7,956,802-byte USDZ, 25,544 first-party page bytes, and a
+0.2346 m AR height; `usdchecker` reports `Success!`.
+
+### Remaining gap from excellent
+
+Browser acceptance is complete, including the user's direct grade judgment.
+Real-iPhone Safari touch feel, ten-minute frame pacing and temperature, native
+Quick Look handoff/upright tabletop placement, physical-size engraving
+legibility, and the recipient's unprompted reaction remain outside browser
+proof.
