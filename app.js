@@ -26,10 +26,6 @@ const browserKind = /micromessenger/.test(ua)
       : 'regular';
 const isInAppBrowser = browserKind !== 'regular';
 
-let userTookControl = false;
-let welcomeFinished = false;
-let arWasRequested = false;
-let autoRotateTimer = 0;
 let modelIsReady = false;
 
 function pauseAmbientSnow() {
@@ -48,21 +44,6 @@ function startAmbientSnow() {
   viewer.play();
 }
 
-function stopAutomaticRotation() {
-  userTookControl = true;
-  window.clearTimeout(autoRotateTimer);
-  viewer.removeAttribute('auto-rotate');
-}
-
-function startWelcomeMoment() {
-  if (welcomeFinished || reducedMotion.matches || document.hidden) return;
-  welcomeFinished = true;
-  viewer.setAttribute('rotation-per-second', '5deg');
-  viewer.setAttribute('auto-rotate-delay', '0');
-  viewer.setAttribute('auto-rotate', '');
-  autoRotateTimer = window.setTimeout(() => viewer.removeAttribute('auto-rotate'), 8500);
-}
-
 function completeModelLoad() {
   modelIsReady = true;
   stage.classList.add('model-ready');
@@ -70,7 +51,6 @@ function completeModelLoad() {
   progressBar.setAttribute('aria-valuenow', '100');
   loadFill.style.transform = 'scaleX(1)';
   startAmbientSnow();
-  window.setTimeout(startWelcomeMoment, 240);
 }
 
 viewer.addEventListener('progress', (event) => {
@@ -80,10 +60,6 @@ viewer.addEventListener('progress', (event) => {
 });
 viewer.addEventListener('load', completeModelLoad);
 viewer.addEventListener('error', () => loadState.classList.add('is-quiet'));
-viewer.addEventListener('camera-change', (event) => {
-  if (event.detail?.source === 'user-interaction') stopAutomaticRotation();
-});
-viewer.addEventListener('pointerdown', stopAutomaticRotation, { passive: true });
 viewer.addEventListener('ar-status', (event) => {
   if (event.detail?.status === 'failed') {
     startAmbientSnow();
@@ -138,8 +114,6 @@ function openArDialog(mode = 'browser') {
 
 roomButton.addEventListener('click', () => {
   setArIntent();
-  arWasRequested = true;
-  stopAutomaticRotation();
 
   if (isInAppBrowser) {
     openArDialog('browser');
@@ -199,28 +173,19 @@ copyLinkButton.addEventListener('click', async () => {
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    viewer.removeAttribute('auto-rotate');
     pauseAmbientSnow();
   } else {
-    if (arWasRequested) viewer.removeAttribute('auto-rotate');
     startAmbientSnow();
   }
 });
 
 window.addEventListener('pageshow', () => {
-  if (arWasRequested) {
-    viewer.removeAttribute('auto-rotate');
-  }
   startAmbientSnow();
 });
 
 reducedMotion.addEventListener('change', () => {
-  viewer.removeAttribute('auto-rotate');
   if (reducedMotion.matches) pauseAmbientSnow();
-  else {
-    startAmbientSnow();
-    if (!userTookControl && !welcomeFinished) startWelcomeMoment();
-  }
+  else startAmbientSnow();
 });
 
 if (location.hash === '#ar') {

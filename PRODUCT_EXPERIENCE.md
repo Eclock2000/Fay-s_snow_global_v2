@@ -1,8 +1,9 @@
 # Product experience contract
 
-Status: implemented and visually reviewed; real-iPhone Safari/Quick Look and
-thermal acceptance remain pending. This document governs the v2 implementation;
-the original repository remains read-only.
+Status: the screenshot-triggered orientation and wind correction has passed a
+fresh GPT-5.6-Sol xhigh browser review using real drag gestures. Real-iPhone
+Safari/Quick Look and thermal acceptance remain pending. This document governs
+the v2 implementation; the original repository remains read-only.
 
 ## 1. Current-state audit
 
@@ -67,7 +68,7 @@ Evidence comes from the deployed original page, its source at commit
 
 | Area | Expected mature experience | Current gap | Acceptance evidence |
 |---|---|---|---|
-| Visual quality | Still feels intentional, not like a 3D demo | Pending implementation | Desktop and iPhone screenshots |
+| Visual quality | Still feels intentional, not like a 3D demo | Browser visual review passed; real-device material read remains pending | Dragged browser views and real-iPhone screenshots |
 | Interaction | Drag rotation remains immediate while fast 3D snow runs independently | Browser-verified; touch feel remains a device check | Pointer, touch, and keyboard checks |
 | Motion control | Reduced motion and hidden-tab pausing work | Browser-verified; device energy use remains pending | Media-query and visibility tests |
 | Reset | Every revisit begins in the same composed ambient state | Browser-verified | Reload and second-run test |
@@ -144,10 +145,11 @@ inside the web page, editable messages, and persistent personalization.
    unsafe-area collision, or undersized controls. Legacy 320 px iPhones are an
    explicit non-goal.
 9. The model target is ≤ 70,000 triangles with textures ≤ 1024 px; GLB target
-   ≤ 4 MB and USDZ target ≤ 8 MB. The restrained 44-flake field is the supported
+   ≤ 4 MB and USDZ target ≤ 8 MB. The stratified 72-flake field is the supported
    composition from SE 3 upward; no untested adaptive-quality claim is made.
 10. Animation pauses when the document is hidden, and reduced-motion mode removes
-    automatic rotation and continuous snowfall while preserving manual actions.
+    continuous snowfall while preserving manual rotation and AR. The camera has
+    no automatic rotation in either mode.
 11. Every visible action has a keyboard label/focus state; AR guidance is
     readable without relying on color.
 12. Personalization rewards attention instead of demanding it. The visual center
@@ -159,12 +161,12 @@ inside the web page, editable messages, and persistent personalization.
     base precisely when the penguin's face and chest are front-facing.
 13. The inline vector exists only to avoid a blank flash during ordinary model
     startup. It is not an offline or network-failure feature.
-14. Automatic motion consists of the brief orientation settle plus a restrained,
-    continuous 3D snow stream. Snow moves quickly and diagonally and may read as
-    headwind, but adding it cannot change a viewer's judgment of the skier's
-    downhill direction. It cannot read as slow vertical snowfall, rain, or a
-    screen overlay. Reduced-motion mode starts calm and flake-free while keeping
-    manual rotation and AR available.
+14. Automatic motion consists only of a restrained, continuous 3D snow stream.
+    Snow moves quickly in a globe-space crosswind that visibly cuts across the
+    skier's downhill line; it cannot read as slow vertical snowfall, rain, a
+    screen overlay, or the terrain's tilt copied onto every object. Reduced-
+    motion mode starts calm and flake-free while keeping manual rotation and AR
+    available.
 15. The engraving crosses the line from hidden to discoverable without becoming
     a headline: at 375 px portrait it is readable without zoom when someone
     deliberately looks at the base, but it is not among the first three visual
@@ -173,10 +175,10 @@ inside the web page, editable messages, and persistent personalization.
 16. Static-to-3D replacement does not visibly jump in scale, framing, engraving
     position, or overall luminance. The progress treatment never becomes a
     permanent spinner or a support flow.
-17. Welcome motion never blocks interaction. The first pointer gesture gives
-    control to the visitor immediately and cancels automatic rotation naturally.
-    Returning from Quick Look restores the calm page without replaying the
-    welcome sequence or entering an error state.
+17. The composed default camera is stable and gives control to the visitor
+    immediately; there is no welcome auto-rotation to stop or replay. Returning
+    from Quick Look resumes ambient snow without changing the chosen camera or
+    entering an error state.
 18. AR exports the globe upright at an intended physical height of about 24 cm,
     suitable for a tabletop. Real-device release checks must reject a model that
     arrives giant, tiny, tilted, floating, or difficult to place.
@@ -230,16 +232,16 @@ The release must label those items pending until that test is completed.
 | Round | Product advocate claim | User objection | Severity | Adjudication / contract change | Remaining uncertainty |
 |---:|---|---|---|---|---|
 | 1 | Personalization should be explicit on first contact | A prominent name or dedication would make the object feel like a greeting-card demo | Superseded by direct user correction | Removed all prominent personalization; retained only the original quiet base engraving | Real-device legibility |
-| 1 | Globe tap and button can both create snow | Tap and drag intent collide | Probable blocker | Globe tap does nothing; one dedicated snow control owns the action | Thumb feel on SE 3 |
+| 1 | Globe tap and button can both create snow | Tap and drag intent collide | Superseded by user's default-snow requirement | Globe tap does nothing; snow is ambient from load and has no control | Thumb feel on SE 3 |
 | 1 | AR can be one tap everywhere | In-app browsers cannot honestly provide the same path | Probable blocker | Keep the gift usable, preserve `#ar`, give browser-specific guidance and copy-link fallback, then require one real Safari tap | Menu labels vary by app/version |
 | 1 | A loader with progress is sufficient | The initial frame should not flash blank during ordinary loading | Friction | Keep an inline first-frame poster, but make no weak-network or recovery promise | Static/3D visual continuity |
 | 2 | Low-contrast engraving is tasteful | Low contrast may become invisible on a 375 px phone or in glare | Probable blocker | Legibility-with-attention threshold added; not top-three visual prominence; verify static, 3D, and AR | Material and display brightness |
-| 2 | Brief welcome motion feels alive | Automatic motion might hold control or replay after AR | Friction | Manual input cancels it immediately; Quick Look return stays calm | Native return lifecycle |
+| 2 | Brief welcome motion feels alive | Automatic motion might hold control or replay after AR | Superseded after direction failure | Delete camera auto-rotation; keep the deliberate default view stable | Native return lifecycle |
 | 2 | AR conveys a tabletop gift | Scale and upright placement were undefined | Blocking for release | Export target fixed near 24 cm and upright; giant/tiny/tilted/floating placement is a release failure | Must be tested on real iPhones |
 | 2 | Supported portrait sizes are enough | Dynamic Safari bars can still cover controls | Probable blocker | Safe-area and dynamic-height checks retained only for the specified portrait iPhones | True Safari behavior |
 | 2 | Page contents establish trust | Chat previews may expose a repo-like/technical presentation | Missing need / trust | Add intentional title, icon, and generic preview art without revealing the engraving | Platform preview caching |
 | 3 | The first refined model is ready | User screenshots show a hollow-looking center, misaligned engraving, snow outside the globe, and permanent flakes | Blocking | Treat the screenshots as the visual contract; close the base, align fronts, shrink the bank, and remove all static flakes | Recheck every draggable view |
-| 3 | A snow button proves dynamic snow exists | The button merely overlays a second layer on frozen flakes and particles appear abruptly | Blocking | Idle and settled states contain zero flakes; one click staggers fade-in, downward fall, and independent fade-out with no respawn | Verify a timed visual sequence |
+| 3 | A snow button proves dynamic snow exists | The button merely overlays a second layer on frozen flakes and particles appear abruptly | Blocking | Delete static flakes and the button; start staggered globe-space snow by default, with independent fade-in/fade-out and no visible respawn | Verify a timed visual sequence |
 | 4 | A front screenshot is enough | Snow/glass intersection and engraving azimuth can fail from side, high, or low views | Blocking | Final acceptance requires real UI dragging through front, back, both sides, both three-quarter views, high, and low views | Xhigh visual reviewer must repeat after every structural change |
 
 **Superseded intermediate verdict:** PASS for the four earlier screenshot-derived corrections.
@@ -428,7 +430,13 @@ surface becomes the downhill plane. This section supersedes contract item 24's
     return resumes naturally without catch-up. A reduced-motion visit never
     starts the snow animation, so no high-speed flake flashes before stopping.
 
-## 13. Final browser visual acceptance
+## 13. Superseded browser visual acceptance
+
+The record below accurately describes the preceding build, but the user's next
+screenshot demonstrated that its informed review missed a first-glance failure:
+from a natural dragged view the penguin read as sideways to the fall line and
+the flakes read as nearly normal to the snow surface. It is retained as
+historical evidence, not as current acceptance.
 
 On 2026-09-03, a GPT-5.6-Sol xhigh visual reviewer reloaded the built page and
 used real drag gestures rather than static source inspection. It covered the
@@ -462,3 +470,147 @@ real supported iPhone must still confirm Safari touch feel, sustained frame
 pacing and temperature over ten minutes, Quick Look handoff, upright tabletop
 placement, glass/material appearance, and the engraving's physical-size
 legibility before deployment is called fully device-accepted.
+
+## 14. Penguin-heading and independent-wind correction
+
+### Current-state and requirement audit
+
+| Evidence | Source | Actual first-glance effect | Disposition |
+|---|---|---|---|
+| Visual inspection of the source mesh shows its board tips leading on native `+Z`, while the preceding `PenguinPlacement` used an unrelated `rotation.y = 0.42` | Artifact plus dragged views | Face, chest, boards, and the steepest descent separated in natural views | Align the real board direction to the fall line, then judge the visible silhouette rather than an assumed authoring axis |
+| The existing particle builder says "Snow still falls vertically" and derives most apparent slant from height loss plus the already tilted cap | Artifact | Flakes look close to perpendicular to the snow, so snow, skier, and surface can read as one rotated assembly | Rebuild each trajectory around a strong globe-space crosswind plus weaker gravity |
+| Penguin must face the downhill direction | User | Body front, board tips, run-out, and old tracks must name the same destination | Stated and blocking |
+| Snow must look wind-driven rather than perpendicular to the surface | User | Wind needs an independent force line that survives orbiting | Stated and blocking |
+| Replace the filled cap with a mound or ridge | None; contradicted by user | Would undo the exact spherical-fill construction | Forbidden |
+| Add controls, copy, or spectacle to explain direction | None | Would make the gift louder without fixing the object | Forbidden |
+
+### Corrected journey
+
+| Contact | User wants | Required visible result | Persistence / failure |
+|---|---|---|---|
+| First | Instantly understand the captured motion | Within one second, a three-quarter face and chest, both board tips, the low run-out ahead, high snow and twin grooves behind, and an independent gust read as "racing toward the left-front low point" | No setup or explanatory text; a sideways, seated, uphill, or falling read fails |
+| Second | Confirm the object remains physically coherent when handled | Dragging reveals that the skier/fall-line relation is rigid while the globe-space gust changes projection, foreshortens when viewed end-on, and reverses on the other side | Camera movement never resets snow or turns the face toward the viewer artificially |
+| Nth | Revisit a living collectible without learning a trick | The same quiet composition begins immediately; motion remains varied without hiding the inscription or skier | No stored orientation, control state, analytics, or accumulating effect |
+
+### Three-round user-representative defense
+
+| Round | Objection | Contract response | Verdict |
+|---:|---|---|---|
+| 1 | Screenshot reads as a side-facing penguin sitting on a white platform under vertical particles; no trustworthy fall line exists | Face/chest, both boards, rear grooves, front run-out, and poles must independently agree before being combined | BLOCK |
+| 2 | Rotating the miniature and leaning the whole penguin could merely replace sideways standing with a rigid figurine falling over; deleting particle paths could make a permanent safety bubble | Reuse the source's already articulated ski pose, limit extra foot-pivot pressure, and resample only true core intersections while retaining foreground/background passes | BLOCK |
+| 3 | Parameter claims are not visual proof | Keep the exact filled cap; delete the erroneous relative yaw; expose a diagonal left-front fall line to the default camera; create varied globe-space crosswind; reject on any real dragged view that reads sideways, rain-like, hollow, or screen-locked | PROCEED to implementation and visual review only |
+
+### Replacement experience contract
+
+41. The filled spherical cap, glass, and base remain structurally unchanged and
+    upright. A horizontal azimuth adjustment may present the internal fall line
+    to the default camera, but cannot become a mound, ridge, floating disc, or
+    tilted outer collectible.
+42. The penguin's native face/chest and both board tips point along the cap's
+    steepest descent. No relative yaw may turn it across the slope. The default
+    camera sees that fall line heading toward the left-front low point, so the
+    expression, both tips, high snow behind, and low run-out ahead coexist.
+43. The original mesh's crouched legs and swept poles remain one articulated
+    pose. Any extra foot-pivot lean is limited and accepted only if the feet stay
+    on both boards, hips remain supported, poles trail high-side, and the result
+    does not read as sitting, kneeling, or falling.
+44. Both recessed grooves terminate behind the boards and extend uphill. They
+    cannot appear in the run-out, cross the board tips, or reverse the apparent
+    direction at back, side, three-quarter, high, or low views.
+45. Wind trajectories live in fixed globe coordinates, not in the tilted
+    miniature. Their dominant horizontal crosswind component is visibly stronger
+    than their gravity component and crosses the snow plane obliquely rather
+    than approximately along its normal.
+46. Flakes share one gust while retaining restrained differences in velocity,
+    angle, length, scale, and sway. The result must read as windblown snow—not
+    rain, meteors, uniform speed lines, or a screen-space overlay.
+47. Trajectories begin at staggered points just inside the sphere and pass
+    through varied near/far lanes. Paths intersecting the penguin's tight body
+    core are resampled, but foreground flakes may cross its silhouette and
+    background flakes may be occluded; no fixed clear halo is allowed.
+48. Every path eases from and back to zero scale. A path approaching the snow
+    continues slightly below it before recycling; a flake carried through the
+    far shell eases away there. There is no rim birth ring, straight
+    disappearance boundary, synchronized refill, or camera-triggered restart.
+49. Orbiting toward the gust foreshortens streaks and emphasizes approaching
+    scale/depth; orbiting through the opposite side reverses the projected
+    sweep continuously. End-on wind may look short, but never becomes long,
+    orderly vertical rain.
+50. Acceptance uses an uninformed one-second default-view read followed by real
+    dragging through front, back, both sides, both three-quarter views, and high
+    and low limits. Correct axes or numeric angles are not substitutes for the
+    intended visual judgment.
+
+### Implementation disposition and evidence plan
+
+| Keep | Change | Delete | Defer |
+|---|---|---|---|
+| Filled cap, contained glass, curved quiet engraving, twin recessed tracks, one AR action | Internal azimuth, native-pose alignment to fall line, restrained foot-pivot pressure, globe-space gust trajectories and collision sampling | Penguin's relative cross-slope yaw, near-normal fall paths, any fixed particle exclusion bubble | Real-iPhone thermal/touch/Quick Look and an uninformed human first-glance test |
+
+- Rebuild GLB/USDZ and retain the triangle, texture, GLB, USDZ, and physical-size
+  gates.
+- First inspect the default frame without orbiting; explicitly name the visible
+  destination, face/chest direction, both board tips, rear tracks, and run-out.
+- Use real drag through a complete orbit plus high/low limits while snow runs.
+  Check skier continuity, contact, groove direction, wind foreshortening and
+  reversal, varied depth, absence of rain lines, and absence of a clear halo.
+- Repeat 390 × 844, 375 × 812, and 375 × 667 framing checks. No layout shrink is
+  permitted as a substitute for object legibility.
+- Watch multiple loop boundaries and one continuous sixty-second interval after
+  the final visual adjustment.
+
+### Current correction acceptance
+
+The earlier PASS was explicitly invalidated when the user's screenshot exposed
+the sideways skier and near-normal snow. The replacement candidate was then
+reviewed from a clean reload in two adversarial passes rather than accepted from
+its transform values.
+
+The user representative first blocked the candidate because the default pose
+still read as standing on a tilted display disc and the short diamonds lacked a
+continuous gust. After the hero azimuth, scale, and particle silhouette changed,
+the representative reloaded, blind-read the default frame, and dragged through
+side and three-quarter views. It then returned `PROCEED`: face, chest, and both
+boards shared the front-low destination; the crosswind changed projection with
+the camera; and the quiet engraving remained a discovered detail.
+
+The GPT-5.6-Sol xhigh visual reviewer independently used real drag gestures for
+the default, front, back, both sides, both three-quarter views, and the high/low
+limits. It initially blocked only the upright/right-side seated silhouette. The
+final correction reshaped the existing single penguin mesh: planted feet stayed
+fixed, head/chest/hips progressively led down the native fall line, and only the
+two existing board tips gained reach. On reload the reviewer returned `PASS`:
+head and chest led the hips, hips stayed over the feet, both tips separated in
+three-quarter view, and no extra boards, stretched seams, floating contact, or
+glass penetration appeared.
+
+That reviewer also passed the independent wind evidence. In consecutive frames
+the rounded long/short flakes swept almost horizontally while the skier fell
+left-front; an end-on side compressed them to dots and short marks; the back
+view reversed their projected slant and density; and the opposite side restored
+the long sweep. A separate run kept the final candidate moving for more than 60
+seconds, with small forward/reverse drags near 10-second intervals. Timed visual
+samples showed no all-field extinction, synchronized brightness pulse, bulk top
+refill, bulk bottom clear, loop hitch, long density collapse, or camera-triggered
+phase reset. Every orbit retained a contained, continuous, thick spherical cap
+rather than a mound or platter. This was sustained visual sampling, not a
+frame-by-frame recording.
+
+Automated acceptance reports 67,560 triangles, a 3,273,768-byte GLB, a
+7,974,921-byte USDZ, 25,591 first-party page bytes, and 0.2346 m AR height.
+`xcrun usdchecker` reports `Success!`.
+
+Exact browser device-metric captures also completed with the final model ready
+at 390 × 844, 375 × 812, and 375 × 667. In every run `innerWidth`, root
+`clientWidth`, root `scrollWidth`, and body `scrollWidth` matched the requested
+width, while root `scrollHeight` matched the requested height. The stage,
+260-pixel AR button, hint, and camera note stayed inside the content bounds; the
+lowest note edge retained 16, 16, and 10 pixels respectively. This proves the
+responsive layout in browser emulation, not Safari safe-area or toolbar behavior.
+
+### Remaining gap from excellent
+
+An informed model reviewer can reject geometric mistakes but cannot supply the
+recipient's own interpretation. The adversarial blind-read now passes, but Fay's
+unprompted first impression remains unknowable until she opens the gift. Real
+iPhone performance and Quick Look also remain pending exactly as before.

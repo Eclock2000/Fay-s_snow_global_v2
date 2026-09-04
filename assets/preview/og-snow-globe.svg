@@ -37,10 +37,10 @@
 
   <g clip-path="url(#clip)">
     <circle cx="600" cy="282" r="205" fill="url(#glass)"/>
-    <path d="M365 300 842 412v110H365Z" fill="#b8cede"/>
-    <ellipse cx="600" cy="360" rx="246" ry="66" transform="rotate(13 600 360)" fill="url(#snow)"/>
-    <path d="M421 322c55-3 99 8 143 28M430 337c54-2 95 8 136 24" fill="none" stroke="#9ebbd0" stroke-width="6" stroke-linecap="round" opacity=".36"/>
-    <g transform="translate(570 318) rotate(10) scale(1.18)">
+    <path d="M365 412 842 300v222H365Z" fill="#b8cede"/>
+    <ellipse cx="600" cy="360" rx="246" ry="66" transform="rotate(-13 600 360)" fill="url(#snow)"/>
+    <path d="M785 314c-58 6-109 22-159 48M791 332c-57 7-107 21-157 43" fill="none" stroke="#9ebbd0" stroke-width="6" stroke-linecap="round" opacity=".36"/>
+    <g transform="translate(590 320) rotate(-20) skewX(-8) scale(-1.24 1.24)">
       <ellipse cx="0" cy="11" rx="30" ry="45" fill="#26313f"/>
       <ellipse cx="0" cy="18" rx="18" ry="29" fill="#e5eaf0"/>
       <circle cx="0" cy="-32" r="26" fill="#303b49"/>
@@ -51,8 +51,8 @@
       <path d="m-33 65 68-10" stroke="#86aeca" stroke-width="5" stroke-linecap="round"/>
     </g>
     <g stroke="#fff" stroke-linecap="round">
-      <path d="m707 181-9 20M748 215l-8 18M676 238l-7 16M786 266l-10 21" stroke-width="5" opacity=".78"/>
-      <path d="m632 168-5 11M725 276l-5 12M809 214l-5 12M661 292l-6 13" stroke-width="3" opacity=".66"/>
+      <path d="m430 188 33 11m41-24 38 13m51 3 42 14m58 4 35 12" stroke-width="5" opacity=".78"/>
+      <path d="m465 245 23 8m72-28 26 9m70 27 24 8m-154 22 20 7" stroke-width="3" opacity=".66"/>
     </g>
   </g>
   <circle cx="600" cy="282" r="205" fill="none" stroke="#c7e2f5" stroke-opacity=".38" stroke-width="5"/>

@@ -79,7 +79,15 @@ for (const token of [
   'InclinedSnowCapGeometry',
   "inclinedSnowWorld.name = 'InclinedSnowWorld'",
   'inclinedSnowWorld.quaternion.copy(SLOPE_ROTATION)',
+  'const MINIATURE_AZIMUTH',
+  'penguinPivot.rotation.y = Math.PI / 2',
+  'const bodyLead',
+  'const boardReach',
   'createCurvedEngravingGeometry',
+  'const crosswind = new THREE.Vector3',
+  'const windU =',
+  'const windV =',
+  'gift.add(snowfall.volume)',
   "new THREE.AnimationClip('Snowfall'",
 ]) {
   requireCondition(modelBuilder.includes(token), `Model-builder contract token missing: ${token}`);
@@ -93,8 +101,13 @@ requireCondition(!html.includes('class="glass-light"'), 'Screen-space glass high
 requireCondition(!html.includes('id="snowButton"'), 'Manual snow button found');
 requireCondition(!app.includes("getContext('2d')"), '2D runtime particle renderer found');
 requireCondition(!app.includes('class Snowfall'), 'Legacy 2D Snowfall class found');
+requireCondition(!app.includes('auto-rotate'), 'Automatic camera rotation found');
 requireCondition(!modelBuilder.includes('new THREE.PlaneGeometry'), 'Planar engraving carrier found');
 requireCondition(!modelBuilder.includes('createDirectionalTerrainGeometry'), 'Legacy mound terrain found');
+requireCondition(
+  !modelBuilder.includes('inclinedSnowWorld.add(snowfall.volume)'),
+  'Snowfall was parented to the tilted miniature',
+);
 requireCondition(!/google-analytics|gtag\(|mixpanel|segment\.io/i.test(html + app), 'Analytics code found');
 
 const glbPath = file('assets/models/fay-snow-globe.glb');
@@ -127,15 +140,15 @@ if (gltf) {
     requireCondition(nodeNames.includes(name), `GLB node missing: ${name}`);
   }
   const flakes = nodeNames.filter((name) => /^SnowFlake\d{2}$/.test(name));
-  requireCondition(flakes.length === 44, `Expected 44 volumetric flakes, found ${flakes.length}`);
+  requireCondition(flakes.length === 72, `Expected 72 volumetric flakes, found ${flakes.length}`);
   const snowfall = (gltf.animations || []).find((animation) => animation.name === 'Snowfall');
   requireCondition(Boolean(snowfall), 'GLB Snowfall animation missing');
   if (snowfall) {
-    requireCondition(snowfall.channels?.length === 88, `Snowfall channel count changed: ${snowfall.channels?.length}`);
-    requireCondition(snowfall.samplers?.length === 88, `Snowfall sampler count changed: ${snowfall.samplers?.length}`);
+    requireCondition(snowfall.channels?.length === 144, `Snowfall channel count changed: ${snowfall.channels?.length}`);
+    requireCondition(snowfall.samplers?.length === 144, `Snowfall sampler count changed: ${snowfall.samplers?.length}`);
     const durations = (snowfall.samplers || []).map((sampler) => gltf.accessors?.[sampler.input]?.max?.[0]);
     requireCondition(
-      durations.length === 88 && durations.every((duration) => Math.abs(duration - 4.8) < 0.001),
+      durations.length === 144 && durations.every((duration) => Math.abs(duration - 4.8) < 0.001),
       'Snowfall loop duration is not consistently 4.8 seconds',
     );
   }

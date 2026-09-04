@@ -99,6 +99,30 @@ function createPenguinGeometry() {
     new THREE.BufferAttribute(typedCopy(sourceBuffer('MESH_UV_B64'), Float32Array), 2),
   );
   geometry.computeBoundingBox();
+
+  // Preserve the original carved figure and its single pair of boards, but
+  // correct the captured stance: feet and board bottoms stay planted while
+  // hips, chest, and helmet progressively lead down the native +Z fall line.
+  // Extending only the existing low/front vertices reveals each true board tip
+  // in the near-frontal hero view without adding a second ski layer.
+  const positions = geometry.getAttribute('position');
+  const sourceMinY = geometry.boundingBox.min.y;
+  const sourceHeight = geometry.boundingBox.max.y - sourceMinY;
+  for (let index = 0; index < positions.count; index += 1) {
+    const x = positions.getX(index);
+    const y = positions.getY(index);
+    const z = positions.getZ(index);
+    const height = THREE.MathUtils.clamp((y - sourceMinY) / sourceHeight, 0, 1);
+    const bodyT = THREE.MathUtils.clamp((height - 0.18) / 0.72, 0, 1);
+    const bodyLead = bodyT * bodyT * (3 - 2 * bodyT) * 0.18;
+    const boardT = THREE.MathUtils.clamp((z - 0.22) / 0.44, 0, 1);
+    const boardHeightMask = 1 - THREE.MathUtils.clamp((y + 0.78) / 0.16, 0, 1);
+    const boardReach = boardT * boardT * (3 - 2 * boardT) * boardHeightMask * 0.13;
+    positions.setXYZ(index, x, y, z + bodyLead + boardReach);
+  }
+  positions.needsUpdate = true;
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
   geometry.name = 'SkiingPenguinGeometry';
   return geometry;
@@ -252,11 +276,26 @@ const GLOBE_RADIUS = 1.16;
 const SNOW_CAP_RADIUS = GLOBE_RADIUS - 0.055;
 const SNOW_SURFACE_Y = -0.31;
 const SNOW_DISC_RADIUS = Math.sqrt(SNOW_CAP_RADIUS ** 2 - SNOW_SURFACE_Y ** 2);
-const SLOPE_ROTATION = new THREE.Quaternion().setFromEuler(
+const MINIATURE_AZIMUTH = THREE.MathUtils.degToRad(-110);
+const SLOPE_TILT = new THREE.Quaternion().setFromEuler(
   new THREE.Euler(THREE.MathUtils.degToRad(2.5), 0, THREE.MathUtils.degToRad(-25), 'XYZ'),
 );
+// Present the physical fall line toward the default camera and lower-left,
+// where the source mesh's visible board tips naturally lead. The outer globe
+// and base remain upright; only the filled miniature is turned inside the
+// rotationally symmetric sphere.
+const SLOPE_ROTATION = new THREE.Quaternion()
+  .setFromAxisAngle(new THREE.Vector3(0, 1, 0), MINIATURE_AZIMUTH)
+  .multiply(SLOPE_TILT);
 const GLOBE_CENTER = new THREE.Vector3(0, GLOBE_CENTER_Y, 0);
 const TRACK_END = new THREE.Vector2(-0.22, 0.13);
+const DOWNHILL_DIRECTION = new THREE.Vector3(1, 0, 0)
+  .applyQuaternion(SLOPE_ROTATION)
+  .normalize();
+const DOWNHILL_HORIZONTAL = DOWNHILL_DIRECTION.clone().setY(0).normalize();
+const CAP_NORMAL = new THREE.Vector3(0, 1, 0)
+  .applyQuaternion(SLOPE_ROTATION)
+  .normalize();
 
 function smoothstep01(value) {
   const t = THREE.MathUtils.clamp(value, 0, 1);
@@ -318,6 +357,18 @@ function snowSurfaceHeight(x, z, { tracks = true } = {}) {
 
 function slopePointToWorld(x, y, z) {
   return new THREE.Vector3(x, y, z).applyQuaternion(SLOPE_ROTATION).add(GLOBE_CENTER);
+}
+
+function distanceToSegment(point, start, end) {
+  const segment = end.clone().sub(start);
+  const lengthSquared = segment.lengthSq();
+  if (!lengthSquared) return point.distanceTo(start);
+  const t = THREE.MathUtils.clamp(
+    point.clone().sub(start).dot(segment) / lengthSquared,
+    0,
+    1,
+  );
+  return point.distanceTo(start.clone().addScaledVector(segment, t));
 }
 
 function createInclinedSnowCapGeometry() {
@@ -553,50 +604,96 @@ function createSnowfallVolume(material) {
   const random = seededRandom(0x5f4e4f57);
   const volume = new THREE.Group();
   volume.name = 'VolumetricSnowfall';
-  const geometry = new THREE.OctahedronGeometry(0.016, 0);
+  const geometry = new THREE.SphereGeometry(0.018, 6, 4);
   geometry.name = 'WindSnowCrystalGeometry';
   const animationTracks = [];
   const clipDuration = 4.8;
   const sampleCount = 40;
-  const flakeCount = 44;
-
+  const flakeCount = 72;
+  const interiorRadius = GLOBE_RADIUS - 0.075;
+  // This is a globe-space crosswind, not a vector derived from the tilted
+  // terrain. From the default camera it cuts upper-left to lower-right while
+  // Fay skis toward lower-left; orbiting the camera reveals the actual depth
+  // and reverses the projected sweep on the far side.
+  const crosswind = new THREE.Vector3(0.88, -0.32, 0.35).normalize();
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  const windU = new THREE.Vector3(0, 1, 0).cross(crosswind).normalize();
+  const windV = crosswind.clone().cross(windU).normalize();
+  const snowPlanePoint = slopePointToWorld(0, SNOW_SURFACE_Y, 0);
+  const penguinCore = slopePointToWorld(
+    TRACK_END.x,
+    snowSurfaceHeight(TRACK_END.x, TRACK_END.y) + 0.3,
+    TRACK_END.y,
+  );
   for (let index = 0; index < flakeCount; index += 1) {
-    let localX;
-    let localZ;
-    do {
-      const landingAngle = random() * Math.PI * 2;
-      const landingRadius = Math.sqrt(random()) * SNOW_DISC_RADIUS * 0.72;
-      localX = Math.cos(landingAngle) * landingRadius;
-      localZ = Math.sin(landingAngle) * landingRadius;
-    } while (Math.hypot(localX - TRACK_END.x, localZ - TRACK_END.y) < 0.24);
+    let start;
+    let end;
+    let velocity;
+    let lateral;
 
-    // The landing coordinate is chosen on the tilted cap, then transformed
-    // back into globe space. Snow still falls vertically, while the opaque cap
-    // hides each crystal immediately after it crosses the physical slope.
-    const landing = slopePointToWorld(
-      localX,
-      snowSurfaceHeight(localX, localZ),
-      localZ,
-    );
-    const endX = landing.x;
-    const endZ = landing.z;
-    let startX = endX + 0.44 + random() * 0.24;
-    let startZ = endZ + (random() - 0.5) * 0.28;
-    const startRadius = Math.hypot(startX, startZ);
-    if (startRadius > 0.88) {
-      const inwardScale = 0.88 / startRadius;
-      startX *= inwardScale;
-      startZ *= inwardScale;
+    // Stratify rays over the disc perpendicular to the wind, then clip each
+    // chord against either the snow plane or the far side of the sphere. The
+    // field therefore occupies the globe's whole air volume; it is not a fan
+    // of rays manufactured from landing points near the skier.
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const sequenceIndex = (index * 29 + attempt * 17) % flakeCount;
+      const windYaw = (random() - 0.5) * THREE.MathUtils.degToRad(18);
+      velocity = crosswind.clone()
+        .applyAxisAngle(new THREE.Vector3(0, 1, 0), windYaw);
+      velocity.y += (random() - 0.5) * 0.07;
+      velocity.normalize();
+
+      const sampleAngle = sequenceIndex * goldenAngle + (random() - 0.5) * 0.18;
+      const sampleRadius = Math.sqrt((sequenceIndex + 0.5) / flakeCount)
+        * interiorRadius
+        * 0.9;
+      const laneCentre = GLOBE_CENTER.clone()
+        .addScaledVector(windU, Math.cos(sampleAngle) * sampleRadius)
+        .addScaledVector(windV, Math.sin(sampleAngle) * sampleRadius);
+      const laneOffset = laneCentre.clone().sub(GLOBE_CENTER);
+      const laneAlong = laneOffset.dot(velocity);
+      const laneDiscriminant = laneAlong * laneAlong
+        + interiorRadius * interiorRadius
+        - laneOffset.lengthSq();
+      if (laneDiscriminant <= 0) continue;
+      const laneRoot = Math.sqrt(laneDiscriminant);
+      const entryT = -laneAlong - laneRoot;
+      const exitT = -laneAlong + laneRoot;
+      const inset = THREE.MathUtils.lerp(0.025, 0.07, random());
+      start = laneCentre.clone().addScaledVector(velocity, entryT + inset);
+      const farExitDistance = Math.max(0, exitT - entryT - inset * 2);
+      const startPlaneDistance = start.clone().sub(snowPlanePoint).dot(CAP_NORMAL);
+      if (startPlaneDistance < 0.055) continue;
+
+      const planeApproach = velocity.dot(CAP_NORMAL);
+      let travelDistance = farExitDistance;
+      if (planeApproach < -0.05) {
+        const planeDistance = -startPlaneDistance / planeApproach;
+        if (planeDistance > 0 && planeDistance < travelDistance) {
+          // Travel just through the plane so the scale fade finishes smoothly
+          // instead of popping exactly at the snow edge.
+          travelDistance = planeDistance + 0.075;
+        }
+      }
+      if (travelDistance < 0.76) continue;
+      end = start.clone().addScaledVector(velocity, travelDistance);
+
+      if (distanceToSegment(penguinCore, start, end) < 0.13) continue;
+      lateral = new THREE.Vector3(-velocity.z, 0, velocity.x).normalize();
+      break;
     }
-    const interiorRadius = GLOBE_RADIUS - 0.09;
-    const startY = GLOBE_CENTER_Y
-      + Math.sqrt(Math.max(0.02, interiorRadius ** 2 - startX * startX - startZ * startZ))
-      - 0.045
-      - random() * 0.22;
-    const endY = landing.y - 0.09;
-    const travelDuration = 2.05 + random() * 0.42;
-    const phaseOffset = random() * clipDuration;
+
+    if (!start || !end || !velocity || !lateral) {
+      throw new Error(`Could not place wind-snow trajectory ${index}`);
+    }
+
+    const travelDuration = 2.0 + random() * 0.35;
+    // A coprime permutation keeps every instant spatially distributed instead
+    // of allowing random phases to reveal one accidental local cluster.
+    const phaseOffset = (((index * 31) % flakeCount) / flakeCount) * clipDuration
+      + random() * 0.035;
     const swayPhase = random() * Math.PI * 2;
+    const flutterPhase = random() * Math.PI * 2;
 
     const flake = namedMesh(
       `SnowFlake${String(index).padStart(2, '0')}`,
@@ -605,20 +702,20 @@ function createSnowfallVolume(material) {
     );
     flake.castShadow = false;
     flake.receiveShadow = false;
-    flake.position.set(startX, startY, startZ);
-    const velocity = new THREE.Vector3(
-      endX - startX,
-      endY - startY,
-      endZ - startZ,
-    ).normalize();
+    flake.position.copy(start);
     flake.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), velocity);
     flake.scale.setScalar(0.001);
     volume.add(flake);
 
-    const visibleScale = 0.64 + random() * 0.88;
-    const widthScale = visibleScale * (0.42 + random() * 0.22);
+    const visibleScale = 0.76 + random() * 0.94;
+    const widthScale = visibleScale * (0.54 + random() * 0.22);
+    const streakKind = random();
     const lengthScale = visibleScale * (
-      random() < 0.28 ? 1.05 + random() * 0.55 : 2.25 + random() * 1.35
+      streakKind < 0.42
+        ? 1.05 + random() * 0.62
+        : streakKind < 0.86
+          ? 2.0 + random() * 1.0
+          : 3.15 + random() * 1.1
     );
     const times = [];
     const positions = [];
@@ -629,17 +726,23 @@ function createSnowfallVolume(material) {
       const phase = (time + phaseOffset) % clipDuration;
       const active = phase < travelDuration;
       const progress = active ? phase / travelDuration : 1;
-      const appear = active ? smoothstep01(progress / 0.12) : 0;
-      const vanish = active ? 1 - smoothstep01((progress - 0.955) / 0.045) : 0;
+      const appear = active ? smoothstep01(progress / 0.1) : 0;
+      const vanish = active ? 1 - smoothstep01((progress - 0.96) / 0.04) : 0;
       const visibility = Math.max(0.001, appear * vanish);
-      const sway = active ? Math.sin(progress * Math.PI * 2 + swayPhase) * 0.018 : 0;
+      const motionEnvelope = Math.sin(progress * Math.PI);
+      const sway = active
+        ? Math.sin(progress * Math.PI * 2.4 + swayPhase) * motionEnvelope * 0.026
+        : 0;
+      const flutter = active
+        ? Math.sin(progress * Math.PI * 4.6 + flutterPhase) * motionEnvelope * 0.009
+        : 0;
+      const position = start.clone()
+        .lerp(end, progress)
+        .addScaledVector(lateral, sway);
+      position.y += flutter;
 
       times.push(time);
-      positions.push(
-        THREE.MathUtils.lerp(startX, endX, progress),
-        THREE.MathUtils.lerp(startY, endY, progress),
-        THREE.MathUtils.lerp(startZ, endZ, progress) + sway,
-      );
+      positions.push(position.x, position.y, position.z);
       scales.push(
         widthScale * visibility,
         lengthScale * visibility,
@@ -706,13 +809,9 @@ const trackBedMaterial = new THREE.MeshStandardMaterial({
   polygonOffsetFactor: -1,
   polygonOffsetUnits: -1,
 });
-const snowflakeMaterial = new THREE.MeshStandardMaterial({
+const snowflakeMaterial = new THREE.MeshBasicMaterial({
   name: 'SnowCrystal',
-  color: 0xf8fcff,
-  roughness: 0.52,
-  metalness: 0.02,
-  emissive: 0x14283d,
-  emissiveIntensity: 0.16,
+  color: 0xf4fbff,
 });
 const woodMaterial = new THREE.MeshStandardMaterial({
   name: 'Walnut',
@@ -783,7 +882,7 @@ const penguinMesh = namedMesh('SkiingPenguin', penguinGeometry, penguinMaterial)
 const penguinBounds = penguinGeometry.boundingBox;
 const penguinSize = new THREE.Vector3();
 penguinBounds.getSize(penguinSize);
-const penguinScale = 0.88 / Math.max(penguinSize.x, penguinSize.y, penguinSize.z);
+const penguinScale = 0.96 / Math.max(penguinSize.x, penguinSize.y, penguinSize.z);
 penguinMesh.scale.setScalar(penguinScale);
 penguinMesh.position.y = -penguinBounds.min.y * penguinScale;
 
@@ -793,8 +892,16 @@ penguinPivot.name = 'PenguinPlacement';
 // coordinates the feet stay on the original flat ground plane; tilting the
 // whole miniature creates the downhill stance without a hover gap.
 penguinPivot.rotation.order = 'YXZ';
-penguinPivot.rotation.y = 0.42;
-penguinPivot.rotation.z = -THREE.MathUtils.degToRad(6);
+// The source is a carved pose: its visible board tips run along local +Z while
+// the torso is already opened toward the viewer. A quarter-turn places those
+// real tips—not an assumed authoring axis—on the cap's +X fall line, while the
+// miniature azimuth keeps the face readable from the default camera.
+penguinPivot.rotation.y = Math.PI / 2;
+// After the quarter-turn, the native +Z board direction becomes cap +X.
+// Positive local-X pitch presses the torso along that same downhill vector;
+// rolling around Z would only lean it toward/away from the camera.
+penguinPivot.rotation.x = THREE.MathUtils.degToRad(12);
+penguinPivot.rotation.z = 0;
 penguinPivot.position.set(
   TRACK_END.x,
   snowSurfaceHeight(TRACK_END.x, TRACK_END.y) - 0.024,
@@ -910,8 +1017,8 @@ const glb = await gltfExporter.parseAsync(scene, {
 });
 await writeFile(resolve(outputDir, 'fay-snow-globe.glb'), Buffer.from(glb));
 
-// Quick Look receives the quiet collectible at rest. The interactive snowfall
-// belongs to the web scene, where the user explicitly asks for it.
+// Quick Look receives the quiet collectible at rest. Default wind-snow belongs
+// to the interactive web scene; native Quick Look gets a stable placement asset.
 snowfall.volume.visible = false;
 const usdzExporter = new USDZExporter();
 const usdz = await usdzExporter.parseAsync(scene, {
@@ -926,12 +1033,17 @@ const usdz = await usdzExporter.parseAsync(scene, {
 });
 await writeFile(resolve(outputDir, 'fay-snow-globe.usdz'), Buffer.from(usdz));
 
+const totalTriangles = triangleCount(gift);
+// Animated flakes briefly touch the inner shell and would otherwise inflate
+// the product dimensions. Report the stable collectible bounds used by AR.
+gift.remove(snowfall.volume);
+scene.updateMatrixWorld(true);
 const dimensions = new THREE.Box3().setFromObject(gift).getSize(new THREE.Vector3());
 const metadata = {
   source: sourcePath,
   sourceCommit: 'e1ab21e7d32d54694c46687e372ba005bb51b9d0',
   generatedAt: new Date().toISOString(),
-  triangles: triangleCount(gift),
+  triangles: totalTriangles,
   dimensionsMeters: {
     width: Number(dimensions.x.toFixed(4)),
     height: Number(dimensions.y.toFixed(4)),
